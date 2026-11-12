@@ -1,762 +1,685 @@
+html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Christmas QR Chaos</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Christmas Codebreakers</title>
 <style>
 :root {
- --red:#a51d2d;
- --green:#145b3a;
- --gold:#e5bd62;
- --cream:#fff9ed;
- --ink:#24312b;
+  --pine:#103b30;
+  --green:#1b5947;
+  --red:#a52b35;
+  --gold:#d9b45b;
+  --paper:#fffaf0;
+  --ink:#202a27;
+  --muted:#65716b;
 }
-* {box-sizing:border-box}
+* { box-sizing:border-box; }
 body {
- margin:0;
- background:linear-gradient(145deg,#0c432d,#092d21);
- color:var(--ink);
- font-family:Georgia,serif;
+  margin:0;
+  background:#102e27;
+  color:var(--ink);
+  font-family:Georgia,serif;
 }
 header {
- text-align:center;
- color:white;
- padding:20px 14px 10px;
+  text-align:center;
+  color:white;
+  padding:26px 16px 18px;
+  background:radial-gradient(ellipse at top,#28664e,#102e27 70%);
 }
-header h1 {
- font-size:clamp(2rem,6vw,3.4rem);
- margin:5px 0;
- color:#ffe3a0;
+header .mark { font-size:2rem; letter-spacing:.3em; }
+h1 {
+  font-size:clamp(2rem,7vw,3.6rem);
+  color:#f3d98f;
+  margin:8px 0;
 }
-header p {color:#f8f0dc}
-main {max-width:1050px;margin:auto;padding:12px}
+header p { margin:0; color:#e8eee8; }
+main { max-width:1000px; margin:auto; padding:14px; }
 .panel {
- background:var(--cream);
- border:3px solid var(--gold);
- border-radius:18px;
- padding:17px;
- margin:12px 0;
- box-shadow:0 8px 24px #001b1280;
+  background:var(--paper);
+  border:2px solid var(--gold);
+  border-radius:16px;
+  padding:18px;
+  margin:13px 0;
 }
-h2 {color:var(--green);margin:0 0 12px}
-.row {
- display:flex;
- gap:9px;
- flex-wrap:wrap;
- align-items:center;
-}
-button,input,select {
- font:inherit;
- border-radius:10px;
- padding:10px 13px;
- border:1px solid #b7b7a8;
-}
-button {
- background:var(--red);
- color:white;
- border:0;
- font-weight:bold;
- cursor:pointer;
-}
-button.secondary {background:var(--green)}
-button.gold {background:#9a6b09}
-button.dark {background:#343b39}
-input {min-width:170px;flex:1}
+h2 { color:var(--pine); margin:0 0 12px; }
 .small {
- font:.92rem Arial;
- color:#526057;
- line-height:1.45;
+  font:.92rem Arial,sans-serif;
+  color:var(--muted);
+  line-height:1.45;
 }
-#challenge {
- min-height:185px;
- display:grid;
- place-items:center;
- text-align:center;
- background:white;
- border:2px dashed var(--gold);
- border-radius:14px;
- padding:18px;
+.row {
+  display:flex;
+  gap:9px;
+  align-items:center;
+  flex-wrap:wrap;
 }
-.category {
- font:bold .85rem Arial;
- letter-spacing:.1em;
- text-transform:uppercase;
- color:var(--red);
+input,select,button {
+  font:16px Arial,sans-serif;
+  border-radius:9px;
+  padding:12px;
+  border:1px solid #c9c5b7;
 }
-.prompt {
- font-size:clamp(1.3rem,4vw,2rem);
- line-height:1.25;
- margin:12px 0;
+input,select { min-width:0; flex:1; background:white; }
+button {
+  background:var(--red);
+  color:white;
+  border:0;
+  font-weight:bold;
+  cursor:pointer;
+  min-height:44px;
 }
-.detail {font:1rem Arial;color:#536057}
-.scoregrid {
- display:grid;
- grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
- gap:8px;
+button.alt { background:var(--green); }
+button.gold { background:#8b650e; }
+button.ghost {
+  background:#e9eee9;
+  color:var(--pine);
+  border:1px solid #bdcbbf;
 }
-.player {
- background:white;
- border:1px solid #ddd;
- border-radius:12px;
- padding:10px;
-}
-.player strong {display:block}
-.player span {
- font:bold 1.5rem Arial;
- color:var(--green);
+#mission {
+  background:white;
+  border:2px dashed var(--gold);
+  border-radius:13px;
+  padding:20px;
+  margin-top:12px;
 }
 .badge {
- display:inline-block;
- background:#f5e7bd;
- padding:5px 9px;
- border-radius:20px;
- font:bold .8rem Arial;
- color:#674b12;
+  display:inline-block;
+  background:#e7efe8;
+  color:var(--pine);
+  border-radius:20px;
+  padding:5px 10px;
+  font:bold .78rem Arial,sans-serif;
+  text-transform:uppercase;
+  letter-spacing:.08em;
 }
-.gift {font-size:3rem}
+#mission h3 {
+  font-size:clamp(1.35rem,4vw,2rem);
+  margin:12px 0;
+  color:var(--pine);
+}
+.puzzle {
+  font:1.08rem/1.6 Arial,sans-serif;
+  white-space:pre-line;
+  margin:12px 0;
+}
+.code {
+  display:block;
+  background:#172f29;
+  color:#f6dfa0;
+  border-radius:9px;
+  padding:14px;
+  font:bold 1.1rem/1.7 monospace;
+  letter-spacing:.08em;
+  overflow-wrap:anywhere;
+}
+.feedback {
+  min-height:1.5em;
+  font:bold 1rem Arial,sans-serif;
+  margin-top:8px;
+}
+.hint,.solution {
+  background:#f5f0e2;
+  border-left:4px solid var(--gold);
+  padding:10px 12px;
+  margin-top:10px;
+  border-radius:4px;
+  font:.95rem/1.45 Arial,sans-serif;
+}
+.hidden { display:none!important; }
+.grid,.mission-list {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(145px,1fr));
+  gap:8px;
+}
+.player,.mission-tile {
+  background:white;
+  border:1px solid #e5ddca;
+  border-radius:10px;
+  padding:10px;
+}
+.player strong { display:block; }
+.player b { font:bold 1.5rem Arial; color:var(--pine); }
+.mission-tile {
+  text-align:left;
+  color:var(--ink);
+  font:.95rem Arial,sans-serif;
+}
+.mission-tile.done {
+  border-color:#4b8a62;
+  background:#edf6ee;
+}
+.mission-tile.active { outline:3px solid var(--gold); }
+.timer {
+  font:bold 1.4rem Arial;
+  color:var(--red);
+}
 #cards {
- display:grid;
- grid-template-columns:repeat(auto-fit,minmax(185px,1fr));
- gap:12px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
 }
 .qcard {
- background:white;
- border:2px dashed var(--gold);
- border-radius:12px;
- padding:12px;
- text-align:center;
- break-inside:avoid;
+  background:white;
+  border:1px dashed #9a8a62;
+  border-radius:10px;
+  padding:12px;
+  text-align:center;
+  break-inside:avoid;
 }
-.qcard h3 {margin:4px;color:var(--red)}
-.qcard p {font:.85rem Arial;color:#566}
-#timer {
- font:bold 2rem Arial;
- color:var(--red);
- min-width:80px;
- text-align:center;
+.qcard h3 { color:var(--pine); }
+.qr {
+  display:flex;
+  justify-content:center;
+  min-height:130px;
+  align-items:center;
 }
 footer {
- text-align:center;
- color:#e9e1cd;
- padding:20px;
- font:.9rem Arial;
+  text-align:center;
+  color:#dce8df;
+  padding:18px;
+  font:.85rem Arial;
 }
-#printArea {display:none}
-
+#printPanel { display:none; }
 @media print {
- body {background:white;color:black}
- header,.no-print,#setup,#play,#scores,#extras,footer {
-  display:none!important;
- }
- main {padding:0;max-width:none}
- .panel {
-  border:0;
-  box-shadow:none;
-  margin:0;
-  padding:0;
- }
- #printArea {display:block!important}
- #cards {
-  grid-template-columns:repeat(3,1fr);
-  gap:7mm;
- }
- .qcard {
-  min-height:57mm;
-  border:1px solid #777;
-  padding:4mm;
- }
+  body { background:white; }
+  header,.no-print,footer { display:none!important; }
+  main { padding:0; max-width:none; }
+  .panel { border:0; margin:0; padding:0; }
+  #printPanel { display:block!important; }
+  #cards { grid-template-columns:repeat(3,1fr); gap:7mm; }
+  .qcard { min-height:55mm; }
 }
 </style>
 </head>
-
 <body>
 
 <header>
-<div style="font-size:2rem">🎄 🎅 🎁</div>
-<h1>Christmas QR Chaos!</h1>
-<p>Scan a surprise. Take on the challenge. Claim the glory.</p>
+  <div class="mark">❄ ✦ 🎄 ✦ ❄</div>
+  <h1>Christmas Codebreakers</h1>
+  <p>A festive intelligence mission. Crack the clues. Save Christmas.</p>
 </header>
 
 <main>
 
-<section class="panel" id="setup">
-<h2>🎄 Set up your game</h2>
+<section class="panel">
+  <h2>🕵️ Mission briefing</h2>
+  <p>
+    Santa's workshop has received an encrypted message.
+    Six core puzzles hide six letters. Solve them in order,
+    then use the first letter of each answer to reveal the
+    final Christmas password.
+  </p>
 
-<div class="row">
-<input id="baseUrl" placeholder="Paste your published game URL here">
-<button class="secondary" onclick="saveUrl()">Save URL</button>
-</div>
+  <div class="row">
+    <input id="playerName" placeholder="Codebreaker's name">
+    <button id="addPlayer">Join the team</button>
+    <select id="playerSelect">
+      <option value="">Choose player</option>
+    </select>
+  </div>
 
-<p class="small">
-Publish this file online first, then paste its public HTTPS address here.
-</p>
-
-<div class="row">
-<input id="playerName" placeholder="Add a player name">
-<button onclick="addPlayer()">Add player</button>
-<button class="gold" onclick="resetScores()">Reset scores</button>
-</div>
-
-<div class="row">
-<label class="small">
-Challenge timer
-<select id="duration">
-<option value="20">20 seconds</option>
-<option value="30" selected>30 seconds</option>
-<option value="45">45 seconds</option>
-<option value="60">60 seconds</option>
-</select>
-</label>
-<span id="urlStatus" class="small">No published URL set yet.</span>
-</div>
+  <div class="row" style="margin-top:10px">
+    <button class="alt" id="startTimer">Start 20-minute timer</button>
+    <button class="ghost" id="pauseTimer">Pause / resume</button>
+    <span class="timer" id="clock">20:00</span>
+  </div>
+  <p class="small">
+    A hint costs 2 points. Revealing an answer earns no points.
+  </p>
 </section>
 
-<section class="panel" id="play">
-<h2>🎁 Play a challenge</h2>
+<section class="panel">
+  <div class="row" style="justify-content:space-between">
+    <h2>🔐 The mission desk</h2>
+    <span class="badge" id="progress">0 / 6 solved</span>
+  </div>
 
-<div class="row no-print">
-<select id="playerSelect">
-<option value="">Choose player</option>
-</select>
+  <div class="mission-list" id="missionList"></div>
 
-<button onclick="drawChallenge()">Draw random challenge</button>
-<button class="secondary" onclick="nextChallenge()">Next challenge</button>
-<button class="dark" onclick="startTimer()">Start timer ⏱</button>
-<span id="timer">00:30</span>
-</div>
-
-<div id="challenge">
-<div>
-<div class="category">Welcome to Christmas Chaos</div>
-<div class="prompt">Pick a player and draw a challenge!</div>
-<div class="detail">Scan a QR card or draw one at random.</div>
-</div>
-</div>
-
-<div class="row no-print" style="justify-content:center;margin-top:12px">
-<button onclick="award(1)">+1 point</button>
-<button onclick="award(2)">+2 points</button>
-<button onclick="award(3)">+3 points</button>
-<button class="gold" onclick="award(5)">+5 bonus</button>
-</div>
-
-<p class="small">
-The host device holds the leaderboard. Players can scan QR codes on their own phones; the host awards points here.
-</p>
+  <div id="mission" aria-live="polite"></div>
 </section>
 
-<section class="panel" id="scores">
-<h2>🏆 Leaderboard</h2>
-<div id="scoreboard" class="scoregrid">
-<p class="small">Add players to get started.</p>
-</div>
+<section class="panel">
+  <h2>🏆 Codebreakers' scoreboard</h2>
+  <div id="scoreboard" class="grid">
+    <p class="small">Add players to begin.</p>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <button class="gold" id="resetScores">Reset scores</button>
+    <button class="ghost" id="resetGame">Reset mission progress</button>
+  </div>
 </section>
 
-<section class="panel" id="extras">
-<h2>🎅 Extra Christmas chaos rounds</h2>
-
-<div class="row">
-<button onclick="naughtyNice()">Naughty or Nice vote</button>
-<button class="secondary" onclick="stealPresent()">Steal a Present</button>
-<button class="gold" onclick="mysteryEnvelope()">Mystery Envelope</button>
-<button class="dark" onclick="finale()">Christmas Finale</button>
-</div>
-
-<div id="extraBox" class="small" style="margin-top:14px">
-Choose a special round.
-</div>
+<section class="panel">
+  <h2>🎄 Final password</h2>
+  <p>
+    Solve all six core missions. Take the first letter of
+    each answer, in order, to discover the password.
+  </p>
+  <div class="row">
+    <input id="finalAnswer" placeholder="Enter the password">
+    <button id="checkFinal">Unlock message</button>
+  </div>
+  <div id="finalMessage" class="solution hidden"></div>
 </section>
 
 <section class="panel no-print">
-<h2>🖨️ Print your QR cards</h2>
-
-<p class="small">
-Generate 40 cards, then print this page. Cut them out and tuck them into crackers, place settings or a bowl.
-</p>
-
-<div class="row">
-<button onclick="makeCards()">Generate QR cards</button>
-<button class="secondary" onclick="window.print()">Print cards</button>
-</div>
+  <h2>📱 Make QR mission cards</h2>
+  <p class="small">
+    Publish this page on GitHub Pages, paste its public address
+    below, then generate and print the QR cards.
+  </p>
+  <div class="row">
+    <input id="baseUrl" placeholder="https://yourname.github.io/christmas-codebreakers/">
+    <button class="alt" id="saveUrl">Save URL</button>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <button id="makeCards">Generate QR cards</button>
+    <button class="ghost" id="printCards">Print cards</button>
+  </div>
+  <p id="urlStatus" class="small"></p>
 </section>
 
-<section class="panel" id="printArea">
-<h2 style="text-align:center">Christmas QR Chaos — Challenge Cards</h2>
-<div id="cards"></div>
+<section class="panel" id="printPanel">
+  <h2 style="text-align:center">Christmas Codebreakers · Mission Cards</h2>
+  <div id="cards"></div>
 </section>
 
 </main>
 
 <footer>
-Made for a very merry, mildly chaotic Christmas. 🎄
+  CLASSIFIED · North Pole Signals Intelligence · Christmas Eve
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
-
-const challenges = [
-
-["Christmas trivia","What year was the first commercial Christmas card produced?","Answer: 1843.",2],
-["Christmas trivia","Which reindeer's name means thunder in German?","Answer: Donner.",2],
-["Christmas trivia","In Home Alone, where are the McCallisters going on holiday?","Answer: Paris.",1],
-["Christmas trivia","Which plant is traditionally associated with kissing at Christmas?","Answer: Mistletoe.",1],
-["Christmas trivia","What is traditionally hidden inside a Christmas pudding?","Answer: A coin.",1],
-["Christmas trivia","Which country gifts the Christmas tree displayed in Trafalgar Square?","Answer: Norway.",2],
-["Christmas trivia","What did the true love give on the fifth day of Christmas?","Answer: Five gold rings.",1],
-
-["Brain teaser","What gets wetter the more it dries?","Answer: A towel.",1],
-["Brain teaser","What has a face and two hands but no arms or legs?","Answer: A clock.",1],
-["Brain teaser","I have branches but no fruit, trunk or leaves. What am I?","Answer: A bank.",2],
-["Brain teaser","What can travel around the world while staying in one corner?","Answer: A stamp.",2],
-["Brain teaser","The more you take, the more you leave behind. What are they?","Answer: Footsteps.",2],
-
-["Silly challenge","Sing Jingle Bells as if you are an opera singer.","The table votes.",3],
-["Silly challenge","Do your best impression of Santa stuck in a lift.","Make us laugh!",3],
-["Silly challenge","Describe Christmas dinner as dramatic football commentary.","At least 15 seconds.",3],
-["Silly challenge","Give a 10-second acceptance speech for Best Christmas Eater.","Thank two people.",2],
-["Silly challenge","Speak like a festive robot until your next turn.","Don't forget!",2],
-
-["Family challenge","Find someone at the table who has travelled furthest from home.","They confirm your answer.",2],
-["Family challenge","Get three people to sing one line of the same Christmas song.","All three must join in.",3],
-["Family challenge","Find someone with a funny Christmas mishap story.","They must tell the story.",2],
-["Family challenge","Make someone laugh without speaking.","You have 30 seconds.",3],
-["Family challenge","Say one lovely thing about the person opposite you.","No repeats.",1],
-
-["Secret mission","Work I blame the elves naturally into conversation.","Don't get spotted.",3],
-["Secret mission","Persuade someone to say reindeer.","Don't ask directly.",3],
-["Secret mission","Get somebody to offer you a mince pie.","Don't ask directly.",3],
-["Secret mission","Make someone say Merry Christmas twice within a minute.","Be subtle!",3],
-
-["Christmas chaos","Swap seats with someone by convincing them it is a royal decree.","They must agree.",2],
-["Christmas chaos","Ask a player a Christmas question. If they get it wrong, take a point.","Be fair.",2],
-["Christmas chaos","Everyone points at the person most likely to fall asleep after dinner.","If it is you, take the point.",2],
-["Christmas chaos","Invent a new name for Santa's sleigh and give a sales pitch.","Best pitch wins.",3],
-
-["Present panic","Describe the present you would least like to unwrap.","Most imaginative answer gets 2 points.",2],
-["Present panic","Mime opening the world's most disappointing present.","No words allowed.",2],
-["Present panic","Wrap an imaginary present with another player.","Best teamwork wins.",3],
-
-["Christmas music","Hum a Christmas song until someone guesses it.","No lyrics.",2],
-["Christmas music","Name five Christmas songs in 15 seconds.","No repeats.",2],
-["Christmas music","Sing a Christmas song in the style of a heavy metal band.","Table vote decides.",3],
-
-["Secret mission","Get someone to say turkey before your next turn.","Keep your mission secret.",3],
-["Secret mission","Compliment three people without using nice, lovely or great.","Complete before next round.",3],
-["Christmas chaos","Give another player a festive nickname that sticks for one round.","They must accept it.",2]
-
+const missions = [
+{
+ title:"The intercepted note",
+ type:"Caesar shift",
+ prompt:"An elf intercepted this message. The letters have been shifted three places FORWARD in the alphabet. Move each letter BACK three places to decode it.",
+ code:"WKUHH",
+ answer:"THREE",
+ hint:"W becomes T. Apply the same backwards shift to every letter.",
+ explain:"W→T, K→H, U→R, H→E, H→E. The answer is THREE.",
+ points:5
+},
+{
+ title:"Santa's radio message",
+ type:"Morse code",
+ prompt:"The North Pole radio operator sent this message in Morse code. Separate the groups and decode it.",
+ code:"..   -.-.   .",
+ answer:"ICE",
+ hint:"The first group is two dots. The middle group is dash-dot-dash-dot.",
+ explain:".. = I, -.-. = C, . = E. The answer is ICE.",
+ points:5
+},
+{
+ title:"The reindeer route",
+ type:"Number sequence",
+ prompt:"The sleigh's navigation system has lost the next direction. Work out the pattern and name the missing compass direction.",
+ code:"N  ·  E  ·  S  ·  ?",
+ answer:"WEST",
+ hint:"These are the four main compass points, moving clockwise.",
+ explain:"North, East, South, then West. The answer is WEST.",
+ points:5
+},
+{
+ title:"The mirror alphabet",
+ type:"Atbash cipher",
+ prompt:"This message uses a mirror alphabet: A swaps with Z, B with Y, C with X, and so on. Decode it.",
+ code:"HGZI",
+ answer:"STAR",
+ hint:"Try reversing the alphabet. H pairs with S.",
+ explain:"H→S, G→T, Z→A, I→R. The answer is STAR.",
+ points:5
+},
+{
+ title:"The workshop terminal",
+ type:"Binary to text",
+ prompt:"The workshop computer has stored a word as 8-bit binary ASCII. Convert each group of eight bits into a character.",
+ code:"01000101  01001100  01000110",
+ answer:"ELF",
+ hint:"Each eight-bit group represents one character. 01000101 is decimal 69.",
+ explain:"The binary groups represent E, L and F. The answer is ELF.",
+ points:5
+},
+{
+ title:"The final parcel",
+ type:"Word clue",
+ prompt:"The last core answer is something that makes a dark room bright. It has five letters, begins with L and rhymes with 'might'.",
+ code:"_ _ _ _ _",
+ answer:"LIGHT",
+ hint:"It is what Santa switches on when he arrives after dark.",
+ explain:"The answer is LIGHT.",
+ points:5
+},
+{
+ title:"Bonus: The missing presents",
+ type:"Logic puzzle",
+ prompt:"Three presents are in a row: a book, a game and a scarf. The book is not first. The scarf is immediately to the right of the game. The game is not last. What is the order?",
+ code:"BOOK · GAME · SCARF",
+ answer:"GAME SCARF BOOK",
+ hint:"The game cannot be last, and the scarf must sit immediately after it.",
+ explain:"GAME–SCARF must occupy positions one and two, leaving BOOK in position three.",
+ points:8,
+ bonus:true
+},
+{
+ title:"Bonus: The odd one out",
+ type:"Pattern recognition",
+ prompt:"Which item does not belong, and why?",
+ code:"25  ·  36  ·  49  ·  64  ·  81  ·  90",
+ answer:"90",
+ hint:"Five of the numbers are perfect squares.",
+ explain:"25, 36, 49, 64 and 81 are squares. 90 is not.",
+ points:8,
+ bonus:true
+},
+{
+ title:"Bonus: The elf's riddle",
+ type:"Lateral thinking",
+ prompt:"I am taken from a mine and shut inside a wooden case, from which I am never released, and yet I am used by almost everybody. What am I?",
+ code:"A small everyday object...",
+ answer:"PENCIL LEAD",
+ hint:"You write with it. It is often called lead, although it is graphite.",
+ explain:"The answer is pencil lead (graphite).",
+ points:8,
+ bonus:true
+},
+{
+ title:"Bonus: The snowed-in safe",
+ type:"Number code",
+ prompt:"The safe needs a three-digit code. Each digit is the number of letters in the answer to the clue, in order: Santa's home (POLE); frozen water (ICE); a Christmas song called Jingle Bells (JINGLE).",
+ code:"?  ?  ?",
+ answer:"436",
+ hint:"Count the letters in POLE, ICE and JINGLE.",
+ explain:"POLE = 4, ICE = 3, JINGLE = 6. The code is 436.",
+ points:8,
+ bonus:true
+}
 ];
 
-let players = JSON.parse(localStorage.getItem("xmasPlayers2") || "[]");
-let current = null;
-let timerId = null;
-let remaining = 30;
+let players=[];
+let current=0;
+let solved=new Set();
+let hinted=new Set();
+let seconds=1200;
+let timer=null;
+let running=false;
 
-function save() {
- localStorage.setItem("xmasPlayers2",JSON.stringify(players));
- renderScores();
-}
+const $=id=>document.getElementById(id);
+const norm=s=>s.toUpperCase().trim().replace(/[^A-Z0-9]/g,"");
 
-function esc(s) {
- return s.replace(/[&<>"']/g,c=>({
- '&':'&amp;',
- '<':'&lt;',
- '>':'&gt;',
- '"':'&quot;',
- "'":'&#39;'
+function escapeHtml(s) {
+ return String(s).replace(/[&<>"']/g,c=>({
+  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
  }[c]));
 }
 
+function renderPlayers() {
+ $("playerSelect").innerHTML=
+ '<option value="">Choose player</option>'+
+ players.map(p=>`<option value="${escapeHtml(p.name)}">${escapeHtml(p.name)}</option>`).join("");
+
+ $("scoreboard").innerHTML=players.length?
+ players.slice().sort((a,b)=>b.score-a.score).map((p,i)=>
+ `<div class="player"><strong>${i+1}. ${escapeHtml(p.name)}</strong><b>${p.score} pts</b></div>`
+ ).join(""):'<p class="small">Add players to begin.</p>';
+}
+
 function addPlayer() {
- let n = document.getElementById("playerName").value.trim();
+ let name=$("playerName").value.trim();
+ if(!name)return;
 
- if(!n) return;
-
- if(players.some(p=>p.name.toLowerCase()===n.toLowerCase())) {
-  alert("Already added.");
+ if(players.some(p=>p.name.toLowerCase()===name.toLowerCase())) {
+  alert("That codebreaker is already on the team.");
   return;
  }
 
- players.push({name:n,score:0,presents:0});
-
- document.getElementById("playerName").value="";
-
- save();
- renderSelect();
+ players.push({name,score:0});
+ $("playerName").value="";
+ renderPlayers();
 }
 
-function renderSelect() {
- playerSelect.innerHTML =
- '<option value="">Choose player</option>' +
- players.map(p=>`<option>${esc(p.name)}</option>`).join("");
+function renderList() {
+ $("missionList").innerHTML=missions.map((m,i)=>
+ `<button type="button" class="mission-tile ${solved.has(i)?"done":""} ${i===current?"active":""}" data-index="${i}">
+ ${solved.has(i)?"✓ ":""}${String(i+1).padStart(2,"0")} · ${escapeHtml(m.type)}${m.bonus?" · BONUS":""}
+ </button>`
+ ).join("");
+
+ $("missionList").querySelectorAll("button").forEach(b=>
+  b.addEventListener("click",()=>showMission(Number(b.dataset.index)))
+ );
+
+ $("progress").textContent=
+ `${[...solved].filter(i=>i<6).length} / 6 core solved`;
 }
 
-function renderScores() {
- scoreboard.innerHTML = players.length
- ? players.slice().sort((a,b)=>b.score-a.score).map((p,i)=>
- `<div class="player">
- <strong>${i+1}. ${esc(p.name)}</strong>
- <span>${p.score} pts</span>
- <div class="small">🎁 ${p.presents||0} presents</div>
- </div>`
- ).join("")
- : '<p class="small">Add players to get started.</p>';
-}
+function showMission(i) {
+ current=Math.max(0,Math.min(missions.length-1,i));
+ let m=missions[current];
 
-function showChallenge(i) {
- current=i;
-
- let c=challenges[i];
-
- challenge.innerHTML=`
- <div>
- <div class="category">${c[0]} · ${c[3]} suggested points</div>
- <div class="prompt">${c[1]}</div>
- <div class="detail">${c[2]}</div>
- <div class="small" style="margin-top:12px">
- Card ${i+1} of ${challenges.length}
+ $("mission").innerHTML=`
+ <span class="badge">Mission ${String(current+1).padStart(2,"0")} · ${escapeHtml(m.type)}${m.bonus?" · BONUS":""}</span>
+ <h3>${escapeHtml(m.title)}</h3>
+ <p class="puzzle">${escapeHtml(m.prompt)}</p>
+ <span class="code">${escapeHtml(m.code)}</span>
+ <p class="small">Worth ${m.points} points. Choose a player before submitting.</p>
+ <div class="row">
+  <input id="answer" placeholder="Type your answer" autocomplete="off">
+  <button id="checkAnswer">Check answer</button>
  </div>
- </div>`;
+ <div class="row" style="margin-top:9px">
+  <button class="ghost" id="showHint">Need a hint?</button>
+  <button class="ghost" id="reveal">Reveal answer</button>
+  <button class="alt" id="next">Next mission →</button>
+ </div>
+ <div id="hint" class="hint hidden"></div>
+ <div id="solution" class="solution hidden"></div>
+ <div id="feedback" class="feedback" aria-live="polite"></div>
+ `;
 
- remaining=+(duration.value);
- updateTimer();
+ $("checkAnswer").addEventListener("click",checkAnswer);
+ $("answer").addEventListener("keydown",e=>{
+  if(e.key==="Enter")checkAnswer();
+ });
+ $("showHint").addEventListener("click",showHint);
+ $("reveal").addEventListener("click",revealAnswer);
+ $("next").addEventListener("click",()=>showMission((current+1)%missions.length));
+
+ renderList();
+
+ if(solved.has(current)) {
+  $("feedback").textContent="Already solved — well done, agent.";
+ }
 }
 
-function drawChallenge() {
- showChallenge(Math.floor(Math.random()*challenges.length));
-}
+function checkAnswer() {
+ let m=missions[current];
+ let v=norm($("answer").value);
 
-function nextChallenge() {
- drawChallenge();
-}
-
-function award(n) {
- let name=playerSelect.value;
-
- if(!name) {
-  alert("Choose the player first.");
+ if(v!==norm(m.answer)) {
+  $("feedback").textContent="Not quite. Check the clue and try again.";
   return;
  }
 
+ if(solved.has(current)) {
+  $("feedback").textContent="This mission has already been scored.";
+  return;
+ }
+
+ let name=$("playerSelect").value;
  let p=players.find(x=>x.name===name);
 
- p.score+=n;
- save();
-
- extraBox.textContent=name+" awarded "+n+" points!";
-}
-
-function resetScores() {
- if(!confirm("Reset all scores and presents?")) return;
-
- players.forEach(p=>{
-  p.score=0;
-  p.presents=0;
- });
-
- save();
-}
-
-function saveUrl() {
- let u=baseUrl.value.trim();
-
- if(!/^https?:\/\//i.test(u)) {
-  alert("Enter the full published web address, starting https://");
+ if(!p) {
+  $("feedback").textContent="Choose the player who cracked it first.";
   return;
  }
 
- localStorage.setItem("xmasBaseUrl2",u);
- urlStatus.textContent="Saved: "+u;
+ let points=Math.max(1,m.points-(hinted.has(current)?2:0));
+ p.score+=points;
+ solved.add(current);
+
+ $("feedback").textContent=`Correct! ${p.name} earns ${points} points.`;
+ $("solution").classList.remove("hidden");
+ $("solution").textContent=m.explain;
+
+ renderPlayers();
+ renderList();
 }
 
-function getUrl() {
- return baseUrl.value.trim() ||
- localStorage.getItem("xmasBaseUrl2") || "";
+function showHint() {
+ hinted.add(current);
+ $("hint").textContent="HINT: "+missions[current].hint;
+ $("hint").classList.remove("hidden");
+}
+
+function revealAnswer() {
+ let m=missions[current];
+ $("solution").textContent="ANSWER: "+m.answer+". "+m.explain;
+ $("solution").classList.remove("hidden");
+ $("feedback").textContent="Answer revealed — no points for this mission.";
+}
+
+function checkFinal() {
+ if([...Array(6).keys()].some(i=>!solved.has(i))) {
+  $("finalMessage").textContent="The six core missions must be solved first.";
+  $("finalMessage").classList.remove("hidden");
+  return;
+ }
+
+ if(norm($("finalAnswer").value)==="TTSSEL") {
+  $("finalMessage").textContent="🎉 ACCESS GRANTED! Santa's workshop is saved!";
+ } else {
+  $("finalMessage").textContent="ACCESS DENIED. Take the first letter of each core answer, in order.";
+ }
+
+ $("finalMessage").classList.remove("hidden");
+}
+
+function updateClock() {
+ let mm=String(Math.floor(seconds/60)).padStart(2,"0");
+ let ss=String(seconds%60).padStart(2,"0");
+ $("clock").textContent=mm+":"+ss;
+}
+
+function startTimer() {
+ if(running)return;
+ running=true;
+
+ timer=setInterval(()=>{
+  if(seconds>0) {
+   seconds--;
+   updateClock();
+  } else {
+   clearInterval(timer);
+   timer=null;
+   running=false;
+   $("clock").textContent="TIME UP";
+   alert("Mission time is up, agents!");
+  }
+ },1000);
+}
+
+function pauseTimer() {
+ if(running) {
+  clearInterval(timer);
+  timer=null;
+  running=false;
+ } else if(seconds>0) {
+  startTimer();
+ }
 }
 
 function makeCards() {
- let u=getUrl();
+ let u=$("baseUrl").value.trim();
 
- if(!u) {
-  alert("Publish the game and paste its URL first.");
+ if(!/^https:\/\/.+/i.test(u)) {
+  alert("Paste your published https:// game URL first.");
   return;
  }
 
  if(typeof QRCode==="undefined") {
-  alert("QR generator couldn't load. Check your internet connection and reload.");
+  alert("QR library did not load. Connect to the internet and reload.");
   return;
  }
 
- cards.innerHTML="";
+ let area=$("cards");
+ area.innerHTML="";
 
- challenges.forEach((c,i)=>{
-
+ missions.forEach((m,i)=>{
   let d=document.createElement("div");
-
   d.className="qcard";
-
   d.innerHTML=`
-  <h3>🎄 ${esc(c[0])}</h3>
-  <div class="qr"></div>
-  <strong>SCAN ME</strong>
-  <p>Christmas QR Chaos · Card ${i+1}</p>`;
-
-  cards.appendChild(d);
+   <h3>🎄 MISSION ${String(i+1).padStart(2,"0")}</h3>
+   <div class="qr"></div>
+   <b>${escapeHtml(m.type)}</b>
+   <p class="small">Christmas Codebreakers · Scan to open</p>
+  `;
+  area.appendChild(d);
 
   new QRCode(d.querySelector(".qr"),{
-   text:u+(u.includes("?")?"&":"?")+"card="+(i+1),
-   width:128,
-   height:128,
-   correctLevel:QRCode.CorrectLevel.M
+   text:u+(u.includes("?")?"&":"?")+"mission="+(i+1),
+   width:120,
+   height:120
   });
-
  });
 
- printArea.style.display="block";
+ $("printPanel").style.display="block";
 }
 
-function updateTimer() {
- timer.textContent="00:"+String(remaining).padStart(2,"0");
+function resetGame() {
+ if(!confirm("Clear all solved missions and hints? Scores will remain."))return;
+
+ solved.clear();
+ hinted.clear();
+ $("finalAnswer").value="";
+ $("finalMessage").classList.add("hidden");
+ showMission(0);
 }
 
-function startTimer() {
- clearInterval(timerId);
+$("addPlayer").addEventListener("click",addPlayer);
+$("playerName").addEventListener("keydown",e=>{
+ if(e.key==="Enter")addPlayer();
+});
+$("checkFinal").addEventListener("click",checkFinal);
+$("startTimer").addEventListener("click",startTimer);
+$("pauseTimer").addEventListener("click",pauseTimer);
 
- remaining=+duration.value;
- updateTimer();
-
- timerId=setInterval(()=>{
-
-  remaining--;
-  updateTimer();
-
-  if(remaining<=0) {
-
-   clearInterval(timerId);
-   timerId=null;
-
-   timer.textContent="⏰ TIME!";
-
-   extraBox.textContent=
-   "Time is up! Table vote: did they complete the challenge?";
-
-  }
-
- },1000);
-}
-
-function loadCard() {
-
- let id=+(new URLSearchParams(location.search).get("card")||0);
-
- if(id>0 && id<=challenges.length) {
-
-  showChallenge(id-1);
-
-  setTimeout(()=>{
-   document.getElementById("play").scrollIntoView({behavior:"smooth"});
-  },250);
-
+$("resetScores").addEventListener("click",()=>{
+ if(confirm("Reset all scores to zero?")) {
+  players.forEach(p=>p.score=0);
+  renderPlayers();
  }
-}
+});
 
-function special(msg) {
- extraBox.innerHTML=msg;
-}
+$("resetGame").addEventListener("click",resetGame);
 
-function naughtyNice() {
-
- if(!players.length) {
-  alert("Add players first.");
+$("saveUrl").addEventListener("click",()=>{
+ let u=$("baseUrl").value.trim();
+ if(!/^https:\/\/.+/i.test(u)) {
+  alert("Enter the full published https:// address first.");
   return;
  }
+ $("urlStatus").textContent="QR cards will link to: "+u;
+});
 
- let who=players[Math.floor(Math.random()*players.length)];
+$("makeCards").addEventListener("click",makeCards);
+$("printCards").addEventListener("click",()=>window.print());
 
- special(`
- <span class="badge">NAUGHTY OR NICE?</span>
- <p><b>${esc(who.name)}</b> is in the spotlight.</p>
- <p>Everyone secretly decides: Naughty or Nice?
- Count to three and point!</p>
- <p>Majority Nice: 2 points.</p>
- <p>Majority Naughty: complete a festive forfeit, then get 1 point.</p>
- <button onclick="voteNice('${encodeURIComponent(who.name)}',true)">Nice — award 2</button>
- <button class="gold" onclick="voteNice('${encodeURIComponent(who.name)}',false)">Naughty — forfeit +1</button>
- `);
+const requested=new URLSearchParams(location.search).get("mission");
+if(requested && Number(requested)>=1 && Number(requested)<=missions.length) {
+ current=Number(requested)-1;
 }
 
-function voteNice(encoded,nice) {
-
- let p=players.find(x=>x.name===decodeURIComponent(encoded));
-
- if(p) {
-
-  p.score+=nice?2:1;
-
-  save();
-
-  special(
-   esc(p.name)+" has been judged "+
-   (nice?"NICE! 2 points awarded.":"NAUGHTY! Complete a forfeit, then 1 point awarded.")
-  );
-
- }
-
-}
-
-function stealPresent() {
-
- if(players.length<2) {
-  alert("Add at least two players.");
-  return;
- }
-
- let names=players.map(p=>p.name);
-
- let from=prompt(
-  "Who are you stealing a present from?\n"+names.join(", ")
- );
-
- if(!from) return;
-
- let donor=players.find(
-  p=>p.name.toLowerCase()===from.trim().toLowerCase()
- );
-
- if(!donor || !donor.presents) {
-  alert("That player has no presents to steal.");
-  return;
- }
-
- let to=playerSelect.value;
-
- if(!to) {
-  alert("Choose the thief in the player selector first.");
-  return;
- }
-
- if(to===donor.name) {
-  alert("You can't steal from yourself!");
-  return;
- }
-
- donor.presents--;
-
- players.find(p=>p.name===to).presents++;
-
- save();
-
- special("🎁 "+esc(to)+" stole a present from "+esc(donor.name)+"!");
-
-}
-
-function mysteryEnvelope() {
-
- let options=[
- ["BONUS GIFT","Take 3 points."],
- ["SWAP IT","Swap your score with the player directly above you."],
- ["SANTA'S SHIELD","You are protected from the next point theft."],
- ["ELF DUTY","Do a silly festive impression. If the table laughs, take 2 points."],
- ["DOUBLE OR NOTHING","Attempt your next challenge for double points."]
- ];
-
- let o=options[Math.floor(Math.random()*options.length)];
-
- let name=playerSelect.value;
-
- special(`
- <div class="gift">✉️🎁</div>
- <span class="badge">MYSTERY ENVELOPE</span>
- <h3>${o[0]}</h3>
- <p>${o[1]}</p>
- <p>Player: <b>${esc(name||"Select a player first")}</b></p>
- <button onclick="claimMystery('${encodeURIComponent(name)}','${encodeURIComponent(o[0])}')">
- Reveal / claim
- </button>
- `);
-
-}
-
-function claimMystery(n,e) {
-
- let name=decodeURIComponent(n);
- let event=decodeURIComponent(e);
-
- let p=players.find(x=>x.name===name);
-
- if(!p) {
-  alert("Choose a player first.");
-  return;
- }
-
- if(event==="BONUS GIFT") p.score+=3;
-
- if(event==="ELF DUTY") p.score+=2;
-
- if(event==="SWAP IT") {
-
-  let sorted=players.slice().sort((a,b)=>b.score-a.score);
-
-  let idx=sorted.findIndex(x=>x.name===name);
-
-  if(idx>0) {
-
-   let other=sorted[idx-1];
-
-   let v=p.score;
-
-   p.score=other.score;
-   other.score=v;
-
-  }
-
- }
-
- if(event==="DOUBLE OR NOTHING") p.score+=2;
-
- if(event==="SANTA'S SHIELD") p.score+=1;
-
- save();
-
- special(esc(name)+" opened "+event+"!");
-
-}
-
-function finale() {
-
- if(!players.length) {
-  alert("Add players first.");
-  return;
- }
-
- let sorted=players.slice().sort((a,b)=>b.score-a.score);
-
- let winner=sorted[0];
-
- special(`
- <div class="gift">🏆🎄🏆</div>
- <h2>THE CHRISTMAS CHAMPION IS...</h2>
- <h1 style="color:#a51d2d">${esc(winner.name)}!</h1>
- <p>With ${winner.score} points and ${winner.presents||0} presents.</p>
- <p>Give them a standing ovation, or at least a mince pie!</p>
- <p>Runner-up: ${sorted[1]?esc(sorted[1].name):"Everyone else is still in with a chance!"}</p>
- `);
-
-}
-
-baseUrl.value=localStorage.getItem("xmasBaseUrl2")||"";
-
-if(baseUrl.value) {
- urlStatus.textContent="Saved URL: "+baseUrl.value;
-}
-
-renderSelect();
-renderScores();
-loadCard();
-
+renderPlayers();
+updateClock();
+showMission(current);
 </script>
-
 </body>
 </html>
