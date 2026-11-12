@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Christmas 15 Puzzle</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    color: white;
+    text-align: center;
+    background: linear-gradient(#071b43, #153b65, #071b43);
+}
+
+.game {
+    max-width: 480px;
+    margin: auto;
+}
+
+h1 {
+    color: #ffdf75;
+    font-size: 34px;
+    margin: 12px 0 5px;
+    text-shadow: 2px 3px 4px #000;
+}
+
+.subtitle {
+    color: #dcecff;
+    margin-bottom: 20px;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-around;
+    background: #163c5c;
+    border: 2px solid #e8bd55;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 15px;
+}
+
+.stat-label {
+    color: #ffdc80;
+    font-size: 13px;
+}
+
+.stat-value {
+    font-size: 26px;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    padding: 7px;
+    background: #a52a22;
+    border: 4px solid #e7b64d;
+    border-radius: 13px;
+    aspect-ratio: 1;
+    box-shadow: 0 8px 20px #0008;
+}
+
+.tile {
+    border-radius: 5px;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-size: 400% 400%;
+    box-shadow: inset 0 0 0 1px #ffffff55;
+    transition: filter .12s;
+    touch-action: manipulation;
+}
+
+.tile:active {
+    filter: brightness(1.3);
+}
+
+.tile.empty {
+    background: #102b49;
+    box-shadow: inset 0 0 15px #0008;
+    cursor: default;
+}
+
+.buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+button {
+    flex: 1;
+    padding: 15px 8px;
+    border: 2px solid #fff5;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.reset {
+    background: linear-gradient(#ffdf54, #e99b13);
+    color: #542500;
+}
+
+.timer {
+    background: linear-gradient(#65df68, #15953b);
+    color: white;
+}
+
+.message {
+    min-height: 45px;
+    margin-top: 20px;
+    color: #ffdf75;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.instructions {
+    margin-top: 12px;
+    color: #c9dcf4;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+footer {
+    color: #e8bd55;
+    margin-top: 25px;
+    font-size: 22px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+<h1>🎄 Christmas 15 Puzzle 🎅</h1>
+<div class="subtitle">
+Slide the tiles to complete the Christmas picture!
+</div>
+
+<div class="stats">
+    <div>
+        <div class="stat-label">MOVES</div>
+        <div class="stat-value" id="moves">0</div>
+    </div>
+    <div>
+        <div class="stat-label">TIME</div>
+        <div class="stat-value" id="time">00:00</div>
+    </div>
+</div>
+
+<div class="board" id="board"></div>
+
+<div class="buttons">
+    <button class="reset" onclick="resetGame()">↻ Reset</button>
+    <button class="timer" id="timerButton" onclick="toggleTimer()">
+        ▶ Start Timer
+    </button>
+</div>
+
+<div class="message" id="message"></div>
+
+<div class="instructions">
+Slide the tiles into the empty space.<br>
+Reconstruct the Christmas picture to win!<br>
+The fewer moves and less time, the better.
+</div>
+
+<footer>❄ Merry Christmas! ❄</footer>
+
+</div>
+
+<script>
+
+// Christmas illustration - built into the HTML.
+// No external image files required.
+
+const picture = `
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="600" height="600" viewBox="0 0 600 600">
+
+<defs>
+ <linearGradient id="sky" x2="0" y2="1">
+  <stop stop-color="#061c52"/>
+  <stop offset="1" stop-color="#2680bd"/>
+ </linearGradient>
+ <linearGradient id="snow" x2="0" y2="1">
+  <stop stop-color="#fff"/>
+  <stop offset="1" stop-color="#a9d9f4"/>
+ </linearGradient>
+ <linearGradient id="red" x2="0" y2="1">
+  <stop stop-color="#fa4940"/>
+  <stop offset="1" stop-color="#9c080d"/>
+ </linearGradient>
+</defs>
+
+<!-- Sky -->
+<rect width="600" height="600" fill="url(#sky)"/>
+
+<!-- Stars -->
+<g fill="white">
+ <circle cx="50" cy="65" r="4"/>
+ <circle cx="160" cy="35" r="3"/>
+ <circle cx="300" cy="70" r="4"/>
+ <circle cx="500" cy="45" r="4"/>
+ <circle cx="555" cy="150" r="3"/>
+ <circle cx="80" cy="240" r="3"/>
+ <circle cx="420" cy="210" r="3"/>
+ <circle cx="250" cy="180" r="3"/>
+</g>
+
+<!-- Moon -->
+<circle cx="490" cy="105" r="40" fill="#ffe9a1"/>
+<circle cx="507" cy="88" r="40" fill="#061c52"/>
+
+<!-- Snowy mountains -->
+<path d="M0 300 L100 180 L180 300 L290 160
+L420 310 L520 190 L600 300 V600 H0Z"
+fill="#d9efff"/>
+
+<!-- Distant trees -->
+<g fill="#075038">
+ <path d="M25 370 L75 230 L125 370Z"/>
+ <path d="M420 360 L475 190 L530 360Z"/>
+ <path d="M500 390 L550 250 L600 390Z"/>
+</g>
+
+<!-- Ground -->
+<path d="M0 430 Q150 390 300 440
+Q450 390 600 420 V600 H0Z"
+fill="url(#snow)"/>
+
+<!-- Cottage -->
+<rect x="385" y="330" width="160" height="140"
+      fill="#814522" stroke="#542c18" stroke-width="6"/>
+
+<path d="M360 345 L465 250 L565 345Z"
+      fill="#a52a22" stroke="#fff" stroke-width="13"/>
+
+<rect x="425" y="365" width="45" height="55"
+      fill="#ffd15b" stroke="#542c18" stroke-width="5"/>
+
+<rect x="490" y="365" width="35" height="40"
+      fill="#ffdb69" stroke="#542c18" stroke-width="5"/>
+
+<path d="M480 470 V420 H530 V470"
+      fill="#542c18"/>
+
+<!-- Christmas tree -->
+<g>
+ <path d="M90 465 L155 210 L220 465Z"
+       fill="#087344" stroke="#064b31" stroke-width="5"/>
+ <path d="M105 390 L155 250 L205 390Z" fill="#0a9655"/>
+ <path d="M120 320 L155 245 L190 320Z" fill="#12a45c"/>
+ <rect x="145" y="450" width="22" height="45" fill="#784321"/>
+ <path d="M155 205 L143 225 L167 225Z" fill="#ffdb55"/>
+ <g fill="#f52f39">
+  <circle cx="125" cy="345" r="9"/>
+  <circle cx="175" cy="380" r="9"/>
+  <circle cx="155" cy="290" r="9"/>
+ </g>
+ <g fill="#ffdb55">
+  <circle cx="155" cy="355" r="8"/>
+  <circle cx="130" cy="410" r="8"/>
+  <circle cx="185" cy="320" r="8"/>
+ </g>
+</g>
+
+<!-- Presents -->
+<g>
+ <rect x="25" y="475" width="95" height="75" fill="#c91827"/>
+ <rect x="62" y="475" width="18" height="75" fill="#ffdc54"/>
+ <rect x="25" y="500" width="95" height="13" fill="#ffdc54"/>
+ <path d="M70 475 Q30 435 55 445 Q75 445 70 475"
+       fill="none" stroke="#ffdc54" stroke-width="8"/>
+ <path d="M70 475 Q110 435 95 445 Q75 445 70 475"
+       fill="none" stroke="#ffdc54" stroke-width="8"/>
+
+ <rect x="130" y="495" width="80" height="55" fill="#14874a"/>
+ <rect x="160" y="495" width="14" height="55" fill="#f8d34e"/>
+ <rect x="130" y="515" width="80" height="12" fill="#f8d34e"/>
+</g>
+
+<!-- Santa sack -->
+<ellipse cx="355" cy="475" rx="85" ry="75" fill="#b87932"/>
+<path d="M280 465 Q320 390 405 430 Q445 470 405 535
+Q340 565 285 515Z" fill="#a65b24"/>
+
+<!-- Santa body -->
+<ellipse cx="300" cy="420" rx="115" ry="135" fill="url(#red)"/>
+<ellipse cx="300" cy="475" rx="90" ry="65" fill="#fff"/>
+<rect x="280" y="510" width="100" height="30" rx="8" fill="#20202b"/>
+<rect x="320" y="507" width="22" height="36" fill="#f9c846"/>
+
+<!-- Santa face -->
+<circle cx="300" cy="270" r="88" fill="#f4bd8d"/>
+
+<!-- Hat -->
+<path d="M215 240 Q220 100 350 180 L390 255
+Q310 220 215 260Z" fill="#d71927"/>
+<path d="M215 245 Q300 220 390 255"
+      stroke="white" stroke-width="25" fill="none"/>
+<circle cx="350" cy="180" r="24" fill="white"/>
+
+<!-- Eyes -->
+<ellipse cx="270" cy="265" rx="9" ry="13" fill="#222"/>
+<ellipse cx="330" cy="265" rx="9" ry="13" fill="#222"/>
+
+<!-- Nose -->
+<circle cx="300" cy="292" r="17" fill="#e77a54"/>
+
+<!-- Beard -->
+<path d="M220 305 Q200 400 300 405
+Q400 400 380 305
+Q350 340 300 325
+Q250 340 220 305Z" fill="white"/>
+
+<path d="M260 320 Q300 355 340 320"
+      stroke="#ddd" stroke-width="5" fill="none"/>
+
+<!-- Smile -->
+<path d="M280 300 Q300 318 320 300"
+      stroke="#8c332a" stroke-width="4" fill="none"/>
+
+<!-- Santa arms -->
+<path d="M220 360 Q155 400 185 465"
+      stroke="#d71927" stroke-width="55" fill="none"
+      stroke-linecap="round"/>
+
+<path d="M380 360 Q450 330 440 280"
+      stroke="#d71927" stroke-width="55" fill="none"
+      stroke-linecap="round"/>
+
+<!-- Gloves -->
+<circle cx="185" cy="465" r="27" fill="#fff"/>
+<circle cx="440" cy="280" r="27" fill="#fff"/>
+
+<!-- Falling snow -->
+<g fill="white" opacity=".9">
+ <circle cx="40" cy="150" r="5"/>
+ <circle cx="140" cy="110" r="4"/>
+ <circle cx="230" cy="80" r="5"/>
+ <circle cx="380" cy="120" r="4"/>
+ <circle cx="550" cy="230" r="5"/>
+ <circle cx="80" cy="350" r="4"/>
+ <circle cx="470" cy="180" r="4"/>
+ <circle cx="330" cy="40" r="4"/>
+</g>
+
+</svg>`;
+
+const image = "url('data:image/svg+xml;charset=utf-8," +
+    encodeURIComponent(picture) + "')";
+
+const board = document.getElementById("board");
+
+let tiles = [];
+let moves = 0;
+let seconds = 0;
+let timerRunning = false;
+let timerStarted = false;
+let timerInterval = null;
+let gameComplete = false;
+
+function neighbours(index) {
+    const row = Math.floor(index / 4);
+    const col = index % 4;
+    const result = [];
+
+    if (row > 0) result.push(index - 4);
+    if (row < 3) result.push(index + 4);
+    if (col > 0) result.push(index - 1);
+    if (col < 3) result.push(index + 1);
+
+    return result;
+}
+
+function render() {
+    board.innerHTML = "";
+
+    tiles.forEach((number, index) => {
+        const tile = document.createElement("div");
+
+        tile.className = number === 0 ? "tile empty" : "tile";
+
+        if (number !== 0) {
+            const originalIndex = number - 1;
+            const row = Math.floor(originalIndex / 4);
+            const col = originalIndex % 4;
+
+            tile.style.backgroundImage = image;
+            tile.style.backgroundPosition =
+                `${col * 100 / 3}% ${row * 100 / 3}%`;
+
+            tile.setAttribute("aria-label", "Puzzle tile " + number);
+
+            tile.addEventListener("click", () => moveTile(index));
+        }
+
+        board.appendChild(tile);
+    });
+}
+
+function resetGame() {
+    stopTimer();
+
+    tiles = Array.from({length: 16}, (_, i) =>
+        i === 15 ? 0 : i + 1
+    );
+
+    // Shuffle using legal moves, ensuring solvability.
+
+    let previousEmpty = -1;
+
+    for (let i = 0; i < 400; i++) {
+        const empty = tiles.indexOf(0);
+
+        let choices = neighbours(empty).filter(
+            n => n !== previousEmpty
+        );
+
+        const next = choices[
+            Math.floor(Math.random() * choices.length)
+        ];
+
+        previousEmpty = empty;
+
+        [tiles[empty], tiles[next]] =
+            [tiles[next], tiles[empty]];
+    }
+
+    moves = 0;
+    seconds = 0;
+    timerStarted = false;
+    gameComplete = false;
+
+    document.getElementById("message").textContent = "";
+
+    updateStats();
+    render();
+}
+
+function moveTile(index) {
+    if (gameComplete) return;
+
+    const empty = tiles.indexOf(0);
+
+    if (!neighbours(empty).includes(index)) return;
+
+    if (!timerStarted) {
+        timerStarted = true;
+        startTimer();
+    }
+
+    [tiles[empty], tiles[index]] =
+        [tiles[index], tiles[empty]];
+
+    moves++;
+
+    render();
+    updateStats();
+    checkWin();
+}
+
+function toggleTimer() {
+    if (gameComplete) return;
+
+    if (timerRunning) {
+        stopTimer();
+    } else {
+        timerStarted = true;
+        startTimer();
+    }
+}
+
+function startTimer() {
+    if (timerRunning) return;
+
+    timerRunning = true;
+
+    document.getElementById("timerButton").textContent =
+        "⏸ Pause Timer";
+
+    timerInterval = setInterval(() => {
+        seconds++;
+        updateStats();
+    }, 1000);
+}
+
+function stopTimer() {
+    timerRunning = false;
+    clearInterval(timerInterval);
+
+    document.getElementById("timerButton").textContent =
+        "▶ Start Timer";
+}
+
+function updateStats() {
+    document.getElementById("moves").textContent = moves;
+
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+
+    document.getElementById("time").textContent =
+        String(mins).padStart(2, "0") + ":" +
+        String(secs).padStart(2, "0");
+}
+
+function checkWin() {
+    const won = tiles.every((number, index) =>
+        number === (index === 15 ? 0 : index + 1)
+    );
+
+    if (won) {
+        gameComplete = true;
+        stopTimer();
+
+        document.getElementById("message").innerHTML =
+            "🎉 HO HO HO! YOU DID IT! 🎉<br>" +
+            "<small>" + moves + " moves in " +
+            document.getElementById("time").textContent +
+            "</small>";
+    }
+}
+
+// Keyboard support
+
+document.addEventListener("keydown", event => {
+    const empty = tiles.indexOf(0);
+    const row = Math.floor(empty / 4);
+    const col = empty % 4;
+
+    let target = -1;
+
+    switch (event.key) {
+        case "ArrowUp":
+            if (row < 3) target = empty + 4;
+            break;
+        case "ArrowDown":
+            if (row > 0) target = empty - 4;
+            break;
+        case "ArrowLeft":
+            if (col < 3) target = empty + 1;
+            break;
+        case "ArrowRight":
+            if (col > 0) target = empty - 1;
+            break;
+    }
+
+    if (target !== -1) {
+        event.preventDefault();
+        moveTile(target);
+    }
+});
+
+resetGame();
+
+</script>
+</body>
+</html>
