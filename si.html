@@ -3,860 +3,882 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Space Invaders Arcade</title>
+<title>Space Invaders HD</title>
 
 <style>
-*{box-sizing:border-box}
+* { box-sizing: border-box; }
 
-body{
- margin:0;
- padding:15px;
- background:#050914;
- color:white;
- font-family:Arial,sans-serif;
- text-align:center;
+body {
+    margin: 0;
+    background: #020817;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
 }
 
-h1{
- color:#48ff9b;
- letter-spacing:5px;
- text-shadow:0 0 12px #48ff9b;
+.game {
+    width: min(100%, 900px);
+    padding: 10px;
 }
 
-.game{
- max-width:650px;
- margin:auto;
+header {
+    display: flex;
+    justify-content: space-around;
+    padding: 15px 5px;
+    background: #07172b;
+    border: 2px solid #087fbd;
+    font-weight: bold;
+    font-size: 15px;
 }
 
-.stats{
- display:flex;
- justify-content:space-around;
- flex-wrap:wrap;
- gap:10px;
- margin:18px 0;
- color:#48ff9b;
- font-weight:bold;
+header span { color: #42f5d7; }
+
+canvas {
+    display: block;
+    width: 100%;
+    background: #020817;
+    border-left: 2px solid #087fbd;
+    border-right: 2px solid #087fbd;
+    touch-action: none;
 }
 
-canvas{
- width:100%;
- background:#020711;
- border:2px solid #48ff9b;
- border-radius:8px;
- display:block;
- touch-action:pan-y;
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px;
+    background: #07172b;
+    border: 2px solid #087fbd;
 }
 
-.controls{
- display:flex;
- gap:12px;
- margin-top:15px;
+button {
+    padding: 14px 22px;
+    background: #17365c;
+    color: white;
+    border: 2px solid #438dcc;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    touch-action: none;
 }
 
-button{
- border:0;
- border-radius:8px;
- padding:15px;
- font-size:20px;
- font-weight:bold;
- cursor:pointer;
- min-height:52px;
+button.fire {
+    background: #bd1828;
+    border-color: #ff6574;
+    min-width: 110px;
 }
 
-.controls button{
- flex:1;
- background:#26344b;
- color:white;
+.instructions {
+    text-align: center;
+    color: #8daac5;
+    font-size: 12px;
+    padding: 10px;
 }
 
-#fire{background:#c62828}
-
-#start{
- background:#48ff9b;
- color:#001b0b;
-}
-
-#pause{
- background:#35445b;
- color:white;
- margin-top:12px;
-}
-
-#message{
- padding:12px;
-}
-
-.instructions{
- color:#9eabc0;
- font-size:13px;
+@media (min-width: 700px) {
+    .controls { display: none; }
 }
 </style>
 </head>
 
 <body>
-
 <div class="game">
 
-<h1>SPACE INVADERS</h1>
+<header>
+    <div>SCORE: <span id="score">00000</span></div>
+    <div>BEST: <span id="best">00000</span></div>
+    <div>LIVES: <span id="lives">3</span></div>
+    <div>LEVEL: <span id="level">1</span></div>
+</header>
 
-<div class="stats">
- <span>SCORE: <span id="score">0</span></span>
- <span>BEST: <span id="best">0</span></span>
- <span>LIVES: <span id="lives">3</span></span>
- <span>LEVEL: <span id="level">1</span></span>
-</div>
-
-<canvas id="game" width="600" height="560"></canvas>
-
-<div id="message">
- <h2 id="heading">DEFEND EARTH!</h2>
- <button id="start">START GAME</button>
-</div>
+<canvas id="game" width="800" height="600"></canvas>
 
 <div class="controls">
- <button id="left">◀</button>
- <button id="fire">🔥 FIRE</button>
- <button id="right">▶</button>
+    <button id="left">◀</button>
+    <button id="fire" class="fire">🔥 FIRE</button>
+    <button id="right">▶</button>
+    <button id="pause">Ⅱ</button>
 </div>
 
-<button id="pause">PAUSE</button>
-
-<p class="instructions">
-Keyboard: LEFT / RIGHT / SPACE<br>
-Mobile: Use the buttons above
-</p>
+<div class="instructions">
+    Arrow keys / A and D to move · SPACE to fire · P to pause
+</div>
 
 </div>
 
 <script>
 
-// ========================================
-// EMBEDDED SPRITE SHEET
-// ========================================
-
-// Four alien types, each with two animation frames.
-// Each sprite is 48 x 40 pixels.
-// The complete sheet is 192 x 160 pixels.
+// =====================================================
+// HIGH RESOLUTION EMBEDDED SPRITESHEET
+// Each sprite is 256 x 192 pixels.
+// Two animation frames per alien.
+// =====================================================
 
 const svg = `
 <svg xmlns="http://www.w3.org/2000/svg"
- width="192" height="160" viewBox="0 0 192 160">
+     width="1024" height="1152"
+     viewBox="0 0 1024 1152">
 
-<g fill="#48ff9b">
+<defs>
 
-<!-- ALIEN TYPE 1 FRAME 1 -->
-<g transform="translate(0,0)">
- <path d="M16 4 H32 V10 H40 V22 H46 V34 H38 V28 H32 V38 H26 V32 H22 V38 H16 V28 H10 V34 H2 V22 H8 V10 H16 Z"/>
- <rect x="13" y="15" width="6" height="6" fill="#020711"/>
- <rect x="29" y="15" width="6" height="6" fill="#020711"/>
+    <linearGradient id="green" x2="0" y2="1">
+        <stop stop-color="#c0ff9c"/>
+        <stop offset=".4" stop-color="#55ff65"/>
+        <stop offset="1" stop-color="#008b35"/>
+    </linearGradient>
+
+    <linearGradient id="gold" x2="0" y2="1">
+        <stop stop-color="#fff2a0"/>
+        <stop offset=".5" stop-color="#ffbd35"/>
+        <stop offset="1" stop-color="#d56b00"/>
+    </linearGradient>
+
+    <linearGradient id="pink" x2="0" y2="1">
+        <stop stop-color="#ffb6ff"/>
+        <stop offset=".5" stop-color="#f23dff"/>
+        <stop offset="1" stop-color="#8a00c4"/>
+    </linearGradient>
+
+    <linearGradient id="cyan" x2="0" y2="1">
+        <stop stop-color="#c4ffff"/>
+        <stop offset=".5" stop-color="#20dcff"/>
+        <stop offset="1" stop-color="#0073bb"/>
+    </linearGradient>
+
+    <linearGradient id="ship" x2="0" y2="1">
+        <stop stop-color="#ffffff"/>
+        <stop offset=".5" stop-color="#9bcaff"/>
+        <stop offset="1" stop-color="#2454a0"/>
+    </linearGradient>
+
+    <filter id="glow">
+        <feGaussianBlur stdDeviation="5" result="blur"/>
+        <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+    </filter>
+
+</defs>
+
+<!-- ALIEN TYPE 1: GREEN -->
+
+<g id="alien1" fill="url(#green)" stroke="#087b36" stroke-width="5">
+
+    <g transform="translate(0,0)">
+        <path d="M55 65 L85 65 L85 40 L110 40 L110 20
+        L145 20 L145 40 L170 40 L170 65 L200 65
+        L200 110 L175 110 L175 135 L150 135
+        L150 160 L130 160 L130 135 L105 135
+        L105 160 L85 160 L85 135 L60 135 L60 110
+        L55 110 Z"/>
+        <rect x="92" y="75" width="22" height="25" fill="#03172a"/>
+        <rect x="145" y="75" width="22" height="25" fill="#03172a"/>
+        <path d="M100 118 L156 118" fill="none" stroke="#03172a" stroke-width="9"/>
+    </g>
+
+    <g transform="translate(256,0)">
+        <path d="M55 65 L85 65 L85 40 L110 40 L110 20
+        L145 20 L145 40 L170 40 L170 65 L200 65
+        L200 110 L175 110 L175 135 L150 135
+        L150 160 L130 160 L130 135 L105 135
+        L105 160 L85 160 L85 135 L60 135 L60 110
+        L55 110 Z"/>
+        <rect x="92" y="75" width="22" height="25" fill="#03172a"/>
+        <rect x="145" y="75" width="22" height="25" fill="#03172a"/>
+        <path d="M100 118 L156 118" fill="none" stroke="#03172a" stroke-width="9"/>
+        <path d="M70 145 L90 145 M165 145 L185 145" stroke="#d5ffad" stroke-width="8"/>
+    </g>
 </g>
 
-<!-- ALIEN TYPE 1 FRAME 2 -->
-<g transform="translate(48,0)">
- <path d="M16 4 H32 V10 H40 V22 H46 V34 H38 V28 H32 V34 H26 V38 H22 V34 H16 V28 H10 V34 H2 V22 H8 V10 H16 Z"/>
- <rect x="13" y="15" width="6" height="6" fill="#020711"/>
- <rect x="29" y="15" width="6" height="6" fill="#020711"/>
+<!-- ALIEN TYPE 2: GOLD -->
+
+<g fill="url(#gold)" stroke="#a64e00" stroke-width="5">
+
+    <g transform="translate(0,192)">
+        <path d="M50 70 L75 70 L75 40 L100 40 L100 20
+        L125 40 L150 20 L175 40 L200 40 L200 70
+        L225 70 L225 115 L195 115 L195 145
+        L165 145 L165 170 L140 170 L140 145
+        L115 145 L115 170 L90 170 L90 145
+        L65 145 L65 115 L50 115 Z"/>
+        <rect x="90" y="85" width="25" height="25" fill="#241000"/>
+        <rect x="160" y="85" width="25" height="25" fill="#241000"/>
+        <path d="M105 125 L170 125" stroke="#241000" stroke-width="9"/>
+    </g>
+
+    <g transform="translate(256,192)">
+        <path d="M50 70 L75 70 L75 40 L100 40 L100 20
+        L125 40 L150 20 L175 40 L200 40 L200 70
+        L225 70 L225 115 L195 115 L195 145
+        L165 145 L165 170 L140 170 L140 145
+        L115 145 L115 170 L90 170 L90 145
+        L65 145 L65 115 L50 115 Z"/>
+        <rect x="90" y="85" width="25" height="25" fill="#241000"/>
+        <rect x="160" y="85" width="25" height="25" fill="#241000"/>
+        <path d="M105 125 L170 125" stroke="#241000" stroke-width="9"/>
+        <path d="M65 150 L85 150 M175 150 L195 150" stroke="#fff2a0" stroke-width="8"/>
+    </g>
 </g>
 
-<!-- ALIEN TYPE 2 FRAME 1 -->
-<g transform="translate(96,0)" fill="#ffb84d">
- <path d="M24 3 L29 10 H39 V16 H45 V28 H39 V34 H32 V39 H16 V34 H9 V28 H3 V16 H9 V10 H19 Z"/>
- <rect x="13" y="16" width="7" height="7" fill="#020711"/>
- <rect x="28" y="16" width="7" height="7" fill="#020711"/>
- <rect x="19" y="27" width="10" height="4" fill="#020711"/>
+<!-- ALIEN TYPE 3: PINK -->
+
+<g fill="url(#pink)" stroke="#79008f" stroke-width="5">
+
+    <g transform="translate(0,384)">
+        <path d="M35 75 L65 75 L65 50 L90 50 L90 25
+        L115 25 L115 50 L140 50 L140 25 L165 25
+        L165 50 L190 50 L190 75 L220 75 L220 120
+        L195 120 L195 145 L170 145 L170 170
+        L145 170 L145 145 L110 145 L110 170
+        L85 170 L85 145 L60 145 L60 120 L35 120 Z"/>
+        <rect x="80" y="85" width="28" height="28" fill="#280033"/>
+        <rect x="150" y="85" width="28" height="28" fill="#280033"/>
+        <path d="M100 125 L155 125" stroke="#280033" stroke-width="10"/>
+    </g>
+
+    <g transform="translate(256,384)">
+        <path d="M35 75 L65 75 L65 50 L90 50 L90 25
+        L115 25 L115 50 L140 50 L140 25 L165 25
+        L165 50 L190 50 L190 75 L220 75 L220 120
+        L195 120 L195 145 L170 145 L170 170
+        L145 170 L145 145 L110 145 L110 170
+        L85 170 L85 145 L60 145 L60 120 L35 120 Z"/>
+        <rect x="80" y="85" width="28" height="28" fill="#280033"/>
+        <rect x="150" y="85" width="28" height="28" fill="#280033"/>
+        <path d="M100 125 L155 125" stroke="#280033" stroke-width="10"/>
+        <path d="M60 155 L80 155 M180 155 L200 155" stroke="#ffcaff" stroke-width="8"/>
+    </g>
 </g>
 
-<!-- ALIEN TYPE 2 FRAME 2 -->
-<g transform="translate(144,0)" fill="#ffb84d">
- <path d="M24 3 L29 10 H39 V16 H45 V28 H39 V34 H32 V39 H16 V34 H9 V28 H3 V16 H9 V10 H19 Z"/>
- <rect x="13" y="16" width="7" height="7" fill="#020711"/>
- <rect x="28" y="16" width="7" height="7" fill="#020711"/>
- <path d="M19 27 H29 V31 H19 Z" fill="#020711"/>
- <path d="M5 34 H14 V39 H8 Z M34 34 H43 V39 H37 Z"/>
+<!-- ALIEN TYPE 4: CYAN -->
+
+<g fill="url(#cyan)" stroke="#00517c" stroke-width="5">
+
+    <g transform="translate(0,576)">
+        <path d="M50 80 L80 80 L80 45 L105 45 L105 20
+        L130 45 L155 20 L155 45 L180 45 L180 80
+        L210 80 L210 120 L185 120 L185 145
+        L160 145 L160 170 L135 170 L135 145
+        L110 145 L110 170 L85 170 L85 145
+        L60 145 L60 120 L50 120 Z"/>
+        <rect x="90" y="85" width="25" height="30" fill="#001d38"/>
+        <rect x="155" y="85" width="25" height="30" fill="#001d38"/>
+        <path d="M100 125 L165 125" stroke="#001d38" stroke-width="10"/>
+    </g>
+
+    <g transform="translate(256,576)">
+        <path d="M50 80 L80 80 L80 45 L105 45 L105 20
+        L130 45 L155 20 L155 45 L180 45 L180 80
+        L210 80 L210 120 L185 120 L185 145
+        L160 145 L160 170 L135 170 L135 145
+        L110 145 L110 170 L85 170 L85 145
+        L60 145 L60 120 L50 120 Z"/>
+        <rect x="90" y="85" width="25" height="30" fill="#001d38"/>
+        <rect x="155" y="85" width="25" height="30" fill="#001d38"/>
+        <path d="M100 125 L165 125" stroke="#001d38" stroke-width="10"/>
+        <path d="M60 155 L80 155 M185 155 L205 155" stroke="#c4ffff" stroke-width="8"/>
+    </g>
 </g>
 
-<!-- ALIEN TYPE 3 FRAME 1 -->
-<g transform="translate(0,40)" fill="#ff65a3">
- <path d="M24 2 L32 10 H40 V18 H46 V29 H40 V35 H32 V39 H16 V35 H8 V29 H2 V18 H8 V10 H16 Z"/>
- <rect x="12" y="16" width="7" height="7" fill="#020711"/>
- <rect x="29" y="16" width="7" height="7" fill="#020711"/>
- <rect x="17" y="27" width="14" height="4" fill="#020711"/>
+<!-- PLAYER SHIP -->
+
+<g transform="translate(0,768)">
+
+    <g>
+        <path d="M128 10 L155 75 L195 115 L220 170
+        L180 155 L160 185 L128 160 L96 185
+        L76 155 L36 170 L61 115 L101 75 Z"
+        fill="url(#ship)" stroke="#294f9a" stroke-width="7"/>
+
+        <path d="M128 10 L128 150" stroke="#ffffff" stroke-width="12"/>
+
+        <path d="M105 100 L151 100 L151 130 L105 130 Z"
+        fill="#00dfff" filter="url(#glow)"/>
+
+        <path d="M65 135 L95 145 L85 165 L55 155 Z" fill="#ff354d"/>
+        <path d="M190 135 L160 145 L170 165 L200 155 Z" fill="#ff354d"/>
+    </g>
+
+    <g transform="translate(256,0)">
+        <path d="M128 10 L155 75 L195 115 L220 170
+        L180 155 L160 185 L128 160 L96 185
+        L76 155 L36 170 L61 115 L101 75 Z"
+        fill="url(#ship)" stroke="#294f9a" stroke-width="7"/>
+
+        <path d="M128 10 L128 150" stroke="#ffffff" stroke-width="12"/>
+
+        <path d="M105 100 L151 100 L151 130 L105 130 Z"
+        fill="#00dfff" filter="url(#glow)"/>
+
+        <path d="M65 135 L95 145 L85 165 L55 155 Z" fill="#ff354d"/>
+        <path d="M190 135 L160 145 L170 165 L200 155 Z" fill="#ff354d"/>
+    </g>
 </g>
 
-<!-- ALIEN TYPE 3 FRAME 2 -->
-<g transform="translate(48,40)" fill="#ff65a3">
- <path d="M24 2 L32 10 H40 V18 H46 V29 H40 V35 H32 V39 H16 V35 H8 V29 H2 V18 H8 V10 H16 Z"/>
- <rect x="12" y="16" width="7" height="7" fill="#020711"/>
- <rect x="29" y="16" width="7" height="7" fill="#020711"/>
- <rect x="17" y="27" width="14" height="4" fill="#020711"/>
- <path d="M4 34 H13 V39 H4 Z M35 34 H44 V39 H35 Z"/>
+<!-- EXPLOSIONS: FOUR FRAMES -->
+
+<g transform="translate(0,960)" filter="url(#glow)">
+
+    <g fill="#fff5a0">
+        <circle cx="128" cy="96" r="25"/>
+        <circle cx="128" cy="25" r="10"/>
+        <circle cx="128" cy="167" r="10"/>
+        <circle cx="57" cy="96" r="10"/>
+        <circle cx="199" cy="96" r="10"/>
+    </g>
+
+    <g transform="translate(256,0)">
+        <circle cx="128" cy="96" r="45" fill="#ffb52e"/>
+        <path d="M128 5 L145 60 L195 25 L170 85
+        L250 96 L170 110 L210 170 L145 130
+        L128 190 L110 130 L45 170 L85 110
+        L5 96 L85 85 L45 25 L110 60 Z"
+        fill="#ff6a20"/>
+        <circle cx="128" cy="96" r="25" fill="#fff8a0"/>
+    </g>
+
+    <g transform="translate(512,0)">
+        <circle cx="128" cy="96" r="65" fill="#ff651f"/>
+        <circle cx="128" cy="96" r="40" fill="#ffe34b"/>
+        <circle cx="128" cy="96" r="20" fill="#ffffff"/>
+    </g>
+
+    <g transform="translate(768,0)">
+        <path d="M128 0 L140 65 L220 20 L165 90
+        L256 110 L160 120 L220 180 L140 140
+        L128 192 L110 140 L35 180 L90 120
+        L0 110 L90 90 L35 20 L110 65 Z"
+        fill="#ff522d"/>
+        <circle cx="128" cy="96" r="18" fill="#ffeaa0"/>
+    </g>
+
 </g>
 
-<!-- ALIEN TYPE 4 FRAME 1 -->
-<g transform="translate(96,40)" fill="#6ee7ff">
- <path d="M24 2 L31 9 H38 V15 H45 V28 H38 V35 H30 V39 H18 V35 H10 V28 H3 V15 H10 V9 H17 Z"/>
- <rect x="12" y="16" width="7" height="7" fill="#020711"/>
- <rect x="29" y="16" width="7" height="7" fill="#020711"/>
- <path d="M17 28 H31 V32 H17 Z" fill="#020711"/>
-</g>
-
-<!-- ALIEN TYPE 4 FRAME 2 -->
-<g transform="translate(144,40)" fill="#6ee7ff">
- <path d="M24 2 L31 9 H38 V15 H45 V28 H38 V35 H30 V39 H18 V35 H10 V28 H3 V15 H10 V9 H17 Z"/>
- <rect x="12" y="16" width="7" height="7" fill="#020711"/>
- <rect x="29" y="16" width="7" height="7" fill="#020711"/>
- <path d="M17 28 H31 V32 H17 Z" fill="#020711"/>
- <path d="M5 34 H13 V39 H5 Z M35 34 H43 V39 H35 Z"/>
-</g>
-
-</g>
-
-<!-- SHIP -->
-<g transform="translate(0,80)" fill="#48ff9b">
- <path d="M24 0 L34 15 H46 V28 H2 V15 H14 Z"/>
- <rect x="20" y="4" width="8" height="8" fill="#020711"/>
-</g>
-
-</svg>`;
-
-// Encode the sprite sheet directly into a Base64 data URI.
+</svg>
+`;
 
 const spriteImage = new Image();
 
-spriteImage.src = "data:image/svg+xml;base64," +
- btoa(unescape(encodeURIComponent(svg)));
+spriteImage.src =
+    "data:image/svg+xml;charset=utf-8," +
+    encodeURIComponent(svg);
 
 
-// ========================================
-// GAME SETUP
-// ========================================
+// =====================================================
+// GAME ENGINE
+// =====================================================
 
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-const W=600,H=560;
+const WIDTH = 800;
+const HEIGHT = 600;
 
-let ship;
-let aliens=[];
-let shots=[];
-let bombs=[];
-let shields=[];
-let explosions=[];
+let score, lives, level, best;
+let player, aliens, shots, bombs, explosions;
+let keys = {};
+let running = false;
+let paused = false;
+let gameOver = false;
+let lastTime = 0;
+let elapsed = 0;
+let alienDirection = 1;
+let alienTimer = 0;
 
-let score=0;
-let best=0;
-let lives=3;
-let level=1;
+best = Number(localStorage.getItem("invadersBest") || 0);
 
-let direction=1;
-let frame=0;
-let running=false;
-let paused=false;
-let keys={};
+function newGame() {
 
-const $=id=>document.getElementById(id);
+    score = 0;
+    lives = 3;
+    level = 1;
 
+    player = {
+        x: 400,
+        y: 550,
+        speed: 6,
+        cooldown: 0,
+        invulnerable: 0
+    };
 
-// ========================================
-// INITIALISE GAME
-// ========================================
+    shots = [];
+    bombs = [];
+    explosions = [];
 
-function reset(){
+    paused = false;
+    gameOver = false;
+    running = true;
 
- ship={x:300,y:510};
-
- aliens=[];
- shots=[];
- bombs=[];
- explosions=[];
-
- shields=[90,245,400,510].map(x=>({
-  x,y:440,hp:5
- }));
-
- for(let r=0;r<4;r++){
-  for(let c=0;c<9;c++){
-
-   aliens.push({
-    x:65+c*57,
-    y:65+r*42,
-    row:r,
-    alive:true
-   });
-
-  }
- }
-
- score=0;
- lives=3;
- level=1;
- direction=1;
- frame=0;
-
- updateStats();
+    createAliens();
+    updateHUD();
 }
 
-function updateStats(){
+function createAliens() {
 
- $("score").textContent=score;
- $("best").textContent=best;
- $("lives").textContent=lives;
- $("level").textContent=level;
+    aliens = [];
 
+    for (let row = 0; row < 4; row++) {
+
+        for (let col = 0; col < 9; col++) {
+
+            aliens.push({
+                x: 110 + col * 72,
+                y: 90 + row * 65,
+                type: row,
+                alive: true
+            });
+        }
+    }
+
+    alienDirection = 1;
 }
 
+function updateHUD() {
 
-// ========================================
-// DRAW ALIEN SPRITES
-// ========================================
+    document.getElementById("score").textContent =
+        String(score).padStart(5, "0");
 
-function drawAlien(a){
+    document.getElementById("best").textContent =
+        String(best).padStart(5, "0");
 
- // Change animation frame every 15 game frames.
- const animationFrame=Math.floor(frame/15)%2;
-
- // Four different alien designs.
- const alienType=a.row;
-
- const spriteX=animationFrame*48;
- const spriteY=alienType*40;
-
- ctx.drawImage(
-  spriteImage,
-
-  spriteX,
-  spriteY,
-  48,
-  40,
-
-  a.x-24,
-  a.y-20,
-  48,
-  40
- );
-
+    document.getElementById("lives").textContent = lives;
+    document.getElementById("level").textContent = level;
 }
 
 
-// ========================================
-// DRAW PLAYER SHIP
-// ========================================
+// =====================================================
+// DRAW SPRITES FROM THE SHEET
+// =====================================================
 
-function drawShip(){
+function drawSprite(sx, sy, sw, sh, x, y, w, h) {
 
- // Ship sprite is in the third row of the sprite sheet.
+    if (!spriteImage.complete) return;
 
- ctx.drawImage(
-  spriteImage,
-  0,80,
-  48,40,
-  ship.x-24,
-  ship.y-20,
-  48,40
- );
+    ctx.drawImage(
+        spriteImage,
+        sx, sy, sw, sh,
+        x, y, w, h
+    );
+}
 
+function drawAlien(a) {
+
+    const frame = Math.floor(elapsed / 250) % 2;
+
+    const sx = frame * 256;
+    const sy = a.type * 192;
+
+    drawSprite(
+        sx, sy,
+        256, 192,
+        a.x - 28, a.y - 21,
+        56, 42
+    );
+}
+
+function drawPlayer() {
+
+    const frame = Math.floor(elapsed / 150) % 2;
+
+    drawSprite(
+        frame * 256, 768,
+        256, 192,
+        player.x - 35, player.y - 27,
+        70, 54
+    );
+}
+
+function drawExplosion(e) {
+
+    const frame = Math.min(3, Math.floor(e.age / 90));
+
+    drawSprite(
+        frame * 256,
+        960,
+        256, 192,
+        e.x - 35, e.y - 35,
+        70, 70
+    );
 }
 
 
-// ========================================
-// EXPLOSIONS
-// ========================================
+// =====================================================
+// GAME ACTIONS
+// =====================================================
 
-function createExplosion(x,y){
+function fire() {
 
- explosions.push({
-  x,y,
-  radius:4,
-  life:15
- });
+    if (gameOver || paused) return;
 
+    if (player.cooldown <= 0) {
+
+        shots.push({
+            x: player.x,
+            y: player.y - 30
+        });
+
+        player.cooldown = 300;
+    }
 }
 
-function drawExplosions(){
+function createExplosion(x, y) {
 
- explosions.forEach(e=>{
+    explosions.push({
+        x, y,
+        age: 0
+    });
+}
 
-  ctx.fillStyle=
-   e.life>9?"#ffff66":
-   e.life>5?"#ff9933":"#ff3333";
+function finishGame() {
 
-  ctx.globalAlpha=e.life/15;
+    gameOver = true;
+    running = false;
 
-  ctx.beginPath();
-  ctx.arc(e.x,e.y,e.radius,0,Math.PI*2);
-  ctx.fill();
+    if (score > best) {
+        best = score;
+        localStorage.setItem("invadersBest", best);
+    }
 
-  ctx.globalAlpha=1;
-
- });
-
- explosions=explosions.filter(e=>{
-
-  e.life--;
-  e.radius+=1.5;
-
-  return e.life>0;
-
- });
-
+    updateHUD();
 }
 
 
-// ========================================
-// DRAW GAME
-// ========================================
+// =====================================================
+// UPDATE
+// =====================================================
 
-function draw(){
+function update(dt) {
 
- ctx.clearRect(0,0,W,H);
+    if (paused || gameOver) return;
 
- // Stars
+    elapsed += dt;
 
- ctx.fillStyle="white";
+    player.cooldown -= dt;
+    player.invulnerable =
+        Math.max(0, player.invulnerable - dt);
 
- for(let i=0;i<75;i++){
+    // Player movement
 
-  const x=(i*137+31)%W;
-  const y=(i*83+13)%H;
+    if (keys.ArrowLeft || keys.a || keys.A) {
+        player.x -= player.speed;
+    }
 
-  ctx.globalAlpha=.4+(i%3)*.2;
-  ctx.fillRect(x,y,2,2);
+    if (keys.ArrowRight || keys.d || keys.D) {
+        player.x += player.speed;
+    }
 
- }
+    player.x = Math.max(35, Math.min(765, player.x));
 
- ctx.globalAlpha=1;
+    // Firing
 
- // Ground
+    if (keys[" "]) fire();
 
- ctx.fillStyle="#48ff9b";
- ctx.fillRect(0,540,W,2);
+    // Player shots
 
- // Ship
+    shots.forEach(s => s.y -= 9);
+    shots = shots.filter(s => s.y > 0);
 
- drawShip();
+    // Alien movement
 
- // Aliens
+    const alive = aliens.filter(a => a.alive);
 
- aliens.filter(a=>a.alive).forEach(drawAlien);
+    const speed = 0.6 + (36 - alive.length) * 0.025;
 
- // Shields
-
- shields.forEach(s=>{
-
-  if(s.hp>0){
-
-   ctx.fillStyle="#48ff9b";
-   ctx.globalAlpha=s.hp/5;
-
-   ctx.fillRect(
-    s.x-25,s.y-12,50,18
-   );
-
-   ctx.globalAlpha=1;
-
-  }
-
- });
-
- // Player lasers
-
- ctx.fillStyle="#ffffff";
-
- shots.forEach(s=>{
-  ctx.fillRect(s.x-2,s.y-9,4,12);
- });
-
- // Alien bombs
-
- ctx.fillStyle="#ff5151";
-
- bombs.forEach(b=>{
-  ctx.fillRect(b.x-3,b.y-5,6,11);
- });
-
- drawExplosions();
-
-}
-
-
-// ========================================
-// PLAYER FIRING
-// ========================================
-
-function shoot(){
-
- if(shots.length<5){
-
-  shots.push({
-   x:ship.x,
-   y:ship.y-20
-  });
-
- }
-
-}
-
-
-// ========================================
-// GAME UPDATE
-// ========================================
-
-function update(){
-
- frame++;
-
- // Move ship
-
- if(keys.left)ship.x-=5;
- if(keys.right)ship.x+=5;
-
- ship.x=Math.max(25,Math.min(W-25,ship.x));
-
- // Fire
-
- if(keys.fire&&frame%12===0){
-  shoot();
- }
-
- // Move alien formation
-
- let alive=aliens.filter(a=>a.alive);
-
- let speed=1+level*.25+
-  (36-alive.length)*.025;
-
- let min=600,max=0;
-
- alive.forEach(a=>{
-
-  a.x+=direction*speed;
-
-  min=Math.min(min,a.x);
-  max=Math.max(max,a.x);
-
- });
-
- if(max>578||min<22){
-
-  direction*=-1;
-
-  alive.forEach(a=>{
-   a.y+=17;
-  });
-
- }
-
- // Alien firing
-
- if(frame%Math.max(18,65-level*5)===0&&alive.length){
-
-  const candidates=alive.filter(a=>
-   !alive.some(b=>b.x===a.x&&b.y>a.y)
-  );
-
-  const a=candidates[
-   Math.floor(Math.random()*candidates.length)
-  ];
-
-  if(a){
-   bombs.push({x:a.x,y:a.y+12});
-  }
-
- }
-
- // Move player lasers
-
- shots=shots.filter(s=>{
-
-  s.y-=9;
-
-  if(s.y<=0)return false;
-
-  for(let a of alive){
-
-   if(Math.abs(s.x-a.x)<19&&
-      Math.abs(s.y-a.y)<18){
-
-    a.alive=false;
-
-    score+=(4-a.row)*10;
-
-    createExplosion(a.x,a.y);
-
-    updateStats();
-
-    return false;
-
-   }
-
-  }
-
-  for(let sh of shields){
-
-   if(sh.hp>0&&
-      Math.abs(s.x-sh.x)<25&&
-      Math.abs(s.y-sh.y)<12){
-
-    sh.hp--;
-    return false;
-
-   }
-
-  }
-
-  return true;
-
- });
-
- // Move alien bombs
-
- bombs=bombs.filter(b=>{
-
-  b.y+=4+level*.4;
-
-  if(Math.abs(b.x-ship.x)<23&&
-     Math.abs(b.y-ship.y)<15){
-
-   lives--;
-   updateStats();
-
-   if(lives<=0){
-    endGame(false);
-   }
-
-   return false;
-
-  }
-
-  for(let sh of shields){
-
-   if(sh.hp>0&&
-      Math.abs(b.x-sh.x)<25&&
-      Math.abs(b.y-sh.y)<12){
-
-    sh.hp--;
-    return false;
-
-   }
-
-  }
-
-  return b.y<H;
-
- });
-
- // Aliens reach Earth
-
- if(alive.some(a=>a.y>475)){
-  endGame(false);
- }
-
- // Next level
-
- if(alive.length===0){
-
-  level++;
-
-  for(let r=0;r<4;r++){
-
-   for(let c=0;c<9;c++){
-
-    aliens.push({
-     x:65+c*57,
-     y:65+r*42,
-     row:r,
-     alive:true
+    aliens.forEach(a => {
+        if (a.alive) {
+            a.x += alienDirection * speed;
+        }
     });
 
-   }
+    const left = Math.min(...alive.map(a => a.x));
+    const right = Math.max(...alive.map(a => a.x));
 
-  }
+    if (right > 770 || left < 30) {
 
-  direction=1;
-  bombs=[];
+        alienDirection *= -1;
 
-  shields.forEach(s=>{
-   s.hp=Math.min(5,s.hp+1);
-  });
+        aliens.forEach(a => {
+            if (a.alive) a.y += 18;
+        });
+    }
 
-  updateStats();
+    // Alien bombs
 
- }
+    alienTimer += dt;
 
+    if (alienTimer > 1100 && alive.length) {
+
+        alienTimer = 0;
+
+        const shooter =
+            alive[Math.floor(Math.random() * alive.length)];
+
+        bombs.push({
+            x: shooter.x,
+            y: shooter.y + 20
+        });
+    }
+
+    bombs.forEach(b => b.y += 4);
+    bombs = bombs.filter(b => b.y < HEIGHT);
+
+    // Shot collision
+
+    shots.forEach(s => {
+
+        aliens.forEach(a => {
+
+            if (!a.alive) return;
+
+            if (
+                Math.abs(s.x - a.x) < 27 &&
+                Math.abs(s.y - a.y) < 22
+            ) {
+
+                a.alive = false;
+                s.y = -100;
+
+                score += [40, 30, 20, 10][a.type];
+
+                createExplosion(a.x, a.y);
+            }
+        });
+    });
+
+    // Player collision
+
+    bombs.forEach(b => {
+
+        if (
+            Math.abs(b.x - player.x) < 28 &&
+            Math.abs(b.y - player.y) < 25 &&
+            player.invulnerable <= 0
+        ) {
+
+            b.y = 1000;
+
+            lives--;
+
+            player.invulnerable = 1600;
+
+            createExplosion(player.x, player.y);
+
+            if (lives <= 0) finishGame();
+        }
+    });
+
+    // Explosion animation
+
+    explosions.forEach(e => e.age += dt);
+
+    explosions = explosions.filter(e => e.age < 360);
+
+    // Next level
+
+    if (aliens.every(a => !a.alive)) {
+
+        level++;
+
+        createAliens();
+        bombs = [];
+    }
+
+    // Aliens reach player
+
+    if (aliens.some(a => a.alive && a.y > player.y - 40)) {
+        finishGame();
+    }
+
+    updateHUD();
 }
 
 
-// ========================================
-// GAME LOOP
-// ========================================
+// =====================================================
+// RENDER
+// =====================================================
 
-function loop(){
+function draw() {
 
- if(!running||paused)return;
+    ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
- update();
- draw();
+    // Stars
 
- if(running){
-  requestAnimationFrame(loop);
- }
+    for (let i = 0; i < 100; i++) {
 
+        const x = (i * 137) % WIDTH;
+        const y = (i * 83) % HEIGHT;
+
+        ctx.fillStyle = i % 5 === 0 ? "#ffffff" : "#254b75";
+
+        ctx.fillRect(x, y, 2, 2);
+    }
+
+    // Planetary horizon
+
+    const gradient = ctx.createLinearGradient(0, 470, 0, 600);
+
+    gradient.addColorStop(0, "rgba(0,70,180,0)");
+    gradient.addColorStop(1, "rgba(0,120,255,.3)");
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 470, WIDTH, 130);
+
+    // Aliens
+
+    aliens.forEach(a => {
+        if (a.alive) drawAlien(a);
+    });
+
+    // Player shots
+
+    ctx.shadowColor = "#00eaff";
+    ctx.shadowBlur = 15;
+    ctx.fillStyle = "#8fffff";
+
+    shots.forEach(s => {
+        ctx.fillRect(s.x - 3, s.y - 12, 6, 20);
+    });
+
+    ctx.shadowBlur = 0;
+
+    // Alien bombs
+
+    ctx.fillStyle = "#ff593d";
+
+    bombs.forEach(b => {
+        ctx.fillRect(b.x - 3, b.y, 6, 15);
+    });
+
+    // Player
+
+    if (
+        !player.invulnerable ||
+        Math.floor(elapsed / 100) % 2 === 0
+    ) {
+        drawPlayer();
+    }
+
+    // Explosions
+
+    explosions.forEach(drawExplosion);
+
+    // Overlay
+
+    if (paused || gameOver) {
+
+        ctx.fillStyle = "rgba(0,0,0,.75)";
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 48px Arial";
+
+        ctx.fillText(
+            gameOver ? "GAME OVER" : "PAUSED",
+            400, 275
+        );
+
+        ctx.font = "22px Arial";
+
+        ctx.fillText(
+            gameOver ? "Press ENTER to restart" : "Press P to resume",
+            400, 320
+        );
+    }
 }
 
 
-// ========================================
-// START / END GAME
-// ========================================
+// =====================================================
+// MAIN LOOP
+// =====================================================
 
-function start(){
+function loop(time) {
 
- reset();
+    const dt = Math.min(40, time - (lastTime || time));
 
- running=true;
- paused=false;
+    lastTime = time;
 
- $("message").style.display="none";
- $("pause").textContent="PAUSE";
+    update(dt);
+    draw();
 
- requestAnimationFrame(loop);
-
-}
-
-function endGame(win){
-
- running=false;
- $("message").style.display="block";
-
- $("heading").textContent=
-  win?"EARTH SAVED!":"GAME OVER";
-
- $("start").textContent="PLAY AGAIN";
-
+    requestAnimationFrame(loop);
 }
 
 
-// ========================================
-// KEYBOARD CONTROLS
-// ========================================
+// =====================================================
+// KEYBOARD
+// =====================================================
 
-document.addEventListener("keydown",e=>{
+window.addEventListener("keydown", e => {
 
- if(["ArrowLeft","ArrowRight"," "].includes(e.key)){
-  e.preventDefault();
- }
+    keys[e.key] = true;
 
- if(e.key==="ArrowLeft")keys.left=true;
- if(e.key==="ArrowRight")keys.right=true;
- if(e.key===" ")keys.fire=true;
+    if (
+        [" ", "ArrowLeft", "ArrowRight"].includes(e.key)
+    ) {
+        e.preventDefault();
+    }
 
+    if (e.key.toLowerCase() === "p" && !gameOver) {
+        paused = !paused;
+    }
+
+    if (e.key === "Enter" && gameOver) {
+        newGame();
+    }
 });
 
-document.addEventListener("keyup",e=>{
-
- if(e.key==="ArrowLeft")keys.left=false;
- if(e.key==="ArrowRight")keys.right=false;
- if(e.key===" ")keys.fire=false;
-
+window.addEventListener("keyup", e => {
+    keys[e.key] = false;
 });
 
 
-// ========================================
+// =====================================================
 // MOBILE CONTROLS
-// ========================================
+// =====================================================
 
-function hold(id,key){
+function holdButton(id, key) {
 
- const el=$(id);
+    const button = document.getElementById(id);
 
- el.addEventListener("pointerdown",e=>{
+    button.addEventListener("pointerdown", e => {
+        e.preventDefault();
+        keys[key] = true;
+        button.setPointerCapture(e.pointerId);
+    });
 
-  e.preventDefault();
-
-  el.setPointerCapture(e.pointerId);
-
-  keys[key]=true;
-
- });
-
- ["pointerup","pointercancel","lostpointercapture"]
- .forEach(event=>{
-
-  el.addEventListener(event,()=>{
-   keys[key]=false;
-  });
-
- });
-
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach(event => {
+        button.addEventListener(event, () => {
+            keys[key] = false;
+        });
+    });
 }
 
-hold("left","left");
-hold("right","right");
-hold("fire","fire");
+holdButton("left", "ArrowLeft");
+holdButton("right", "ArrowRight");
 
+document.getElementById("fire").addEventListener(
+    "pointerdown",
+    e => {
+        e.preventDefault();
+        fire();
+    }
+);
 
-// ========================================
-// PAUSE
-// ========================================
-
-$("pause").addEventListener("click",()=>{
-
- if(!running)return;
-
- paused=!paused;
-
- $("pause").textContent=
-  paused?"RESUME":"PAUSE";
-
- if(paused){
-
-  $("heading").textContent="PAUSED";
-  $("start").textContent="RESUME";
-
-  $("message").style.display="block";
-
- }else{
-
-  $("message").style.display="none";
-
-  requestAnimationFrame(loop);
-
- }
-
-});
-
-$("start").addEventListener("click",()=>{
-
- if(paused&&!gameOver){
-
-  paused=false;
-
-  $("message").style.display="none";
-  $("pause").textContent="PAUSE";
-
-  requestAnimationFrame(loop);
-
- }else{
-
-  start();
-
- }
-
-});
-
-
-// ========================================
-// INITIALISE
-// ========================================
-
-reset();
-
-spriteImage.onload=()=>{
-
- draw();
-
+document.getElementById("pause").onclick = () => {
+    if (!gameOver) paused = !paused;
 };
 
-</script>
 
+// =====================================================
+// START
+// =====================================================
+
+newGame();
+requestAnimationFrame(loop);
+
+</script>
 </body>
 </html>
