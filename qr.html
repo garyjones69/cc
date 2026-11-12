@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Christmas QR Chaos</title>
+
+<style>
+:root {
+ --red:#a51d2d;
+ --green:#145b3a;
+ --gold:#e5bd62;
+ --cream:#fff9ed;
+ --ink:#24312b;
+}
+* {box-sizing:border-box}
+body {
+ margin:0;
+ background:linear-gradient(145deg,#0c432d,#092d21);
+ color:var(--ink);
+ font-family:Georgia,serif;
+}
+header {
+ text-align:center;
+ color:white;
+ padding:20px 14px 10px;
+}
+header h1 {
+ font-size:clamp(2rem,6vw,3.4rem);
+ margin:5px 0;
+ color:#ffe3a0;
+}
+header p {color:#f8f0dc}
+main {max-width:1050px;margin:auto;padding:12px}
+.panel {
+ background:var(--cream);
+ border:3px solid var(--gold);
+ border-radius:18px;
+ padding:17px;
+ margin:12px 0;
+ box-shadow:0 8px 24px #001b1280;
+}
+h2 {color:var(--green);margin:0 0 12px}
+.row {
+ display:flex;
+ gap:9px;
+ flex-wrap:wrap;
+ align-items:center;
+}
+button,input,select {
+ font:inherit;
+ border-radius:10px;
+ padding:10px 13px;
+ border:1px solid #b7b7a8;
+}
+button {
+ background:var(--red);
+ color:white;
+ border:0;
+ font-weight:bold;
+ cursor:pointer;
+}
+button.secondary {background:var(--green)}
+button.gold {background:#9a6b09}
+button.dark {background:#343b39}
+input {min-width:170px;flex:1}
+.small {
+ font:.92rem Arial;
+ color:#526057;
+ line-height:1.45;
+}
+#challenge {
+ min-height:185px;
+ display:grid;
+ place-items:center;
+ text-align:center;
+ background:white;
+ border:2px dashed var(--gold);
+ border-radius:14px;
+ padding:18px;
+}
+.category {
+ font:bold .85rem Arial;
+ letter-spacing:.1em;
+ text-transform:uppercase;
+ color:var(--red);
+}
+.prompt {
+ font-size:clamp(1.3rem,4vw,2rem);
+ line-height:1.25;
+ margin:12px 0;
+}
+.detail {font:1rem Arial;color:#536057}
+.scoregrid {
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+ gap:8px;
+}
+.player {
+ background:white;
+ border:1px solid #ddd;
+ border-radius:12px;
+ padding:10px;
+}
+.player strong {display:block}
+.player span {
+ font:bold 1.5rem Arial;
+ color:var(--green);
+}
+.badge {
+ display:inline-block;
+ background:#f5e7bd;
+ padding:5px 9px;
+ border-radius:20px;
+ font:bold .8rem Arial;
+ color:#674b12;
+}
+.gift {font-size:3rem}
+#cards {
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(185px,1fr));
+ gap:12px;
+}
+.qcard {
+ background:white;
+ border:2px dashed var(--gold);
+ border-radius:12px;
+ padding:12px;
+ text-align:center;
+ break-inside:avoid;
+}
+.qcard h3 {margin:4px;color:var(--red)}
+.qcard p {font:.85rem Arial;color:#566}
+#timer {
+ font:bold 2rem Arial;
+ color:var(--red);
+ min-width:80px;
+ text-align:center;
+}
+footer {
+ text-align:center;
+ color:#e9e1cd;
+ padding:20px;
+ font:.9rem Arial;
+}
+#printArea {display:none}
+
+@media print {
+ body {background:white;color:black}
+ header,.no-print,#setup,#play,#scores,#extras,footer {
+  display:none!important;
+ }
+ main {padding:0;max-width:none}
+ .panel {
+  border:0;
+  box-shadow:none;
+  margin:0;
+  padding:0;
+ }
+ #printArea {display:block!important}
+ #cards {
+  grid-template-columns:repeat(3,1fr);
+  gap:7mm;
+ }
+ .qcard {
+  min-height:57mm;
+  border:1px solid #777;
+  padding:4mm;
+ }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div style="font-size:2rem">🎄 🎅 🎁</div>
+<h1>Christmas QR Chaos!</h1>
+<p>Scan a surprise. Take on the challenge. Claim the glory.</p>
+</header>
+
+<main>
+
+<section class="panel" id="setup">
+<h2>🎄 Set up your game</h2>
+
+<div class="row">
+<input id="baseUrl" placeholder="Paste your published game URL here">
+<button class="secondary" onclick="saveUrl()">Save URL</button>
+</div>
+
+<p class="small">
+Publish this file online first, then paste its public HTTPS address here.
+</p>
+
+<div class="row">
+<input id="playerName" placeholder="Add a player name">
+<button onclick="addPlayer()">Add player</button>
+<button class="gold" onclick="resetScores()">Reset scores</button>
+</div>
+
+<div class="row">
+<label class="small">
+Challenge timer
+<select id="duration">
+<option value="20">20 seconds</option>
+<option value="30" selected>30 seconds</option>
+<option value="45">45 seconds</option>
+<option value="60">60 seconds</option>
+</select>
+</label>
+<span id="urlStatus" class="small">No published URL set yet.</span>
+</div>
+</section>
+
+<section class="panel" id="play">
+<h2>🎁 Play a challenge</h2>
+
+<div class="row no-print">
+<select id="playerSelect">
+<option value="">Choose player</option>
+</select>
+
+<button onclick="drawChallenge()">Draw random challenge</button>
+<button class="secondary" onclick="nextChallenge()">Next challenge</button>
+<button class="dark" onclick="startTimer()">Start timer ⏱</button>
+<span id="timer">00:30</span>
+</div>
+
+<div id="challenge">
+<div>
+<div class="category">Welcome to Christmas Chaos</div>
+<div class="prompt">Pick a player and draw a challenge!</div>
+<div class="detail">Scan a QR card or draw one at random.</div>
+</div>
+</div>
+
+<div class="row no-print" style="justify-content:center;margin-top:12px">
+<button onclick="award(1)">+1 point</button>
+<button onclick="award(2)">+2 points</button>
+<button onclick="award(3)">+3 points</button>
+<button class="gold" onclick="award(5)">+5 bonus</button>
+</div>
+
+<p class="small">
+The host device holds the leaderboard. Players can scan QR codes on their own phones; the host awards points here.
+</p>
+</section>
+
+<section class="panel" id="scores">
+<h2>🏆 Leaderboard</h2>
+<div id="scoreboard" class="scoregrid">
+<p class="small">Add players to get started.</p>
+</div>
+</section>
+
+<section class="panel" id="extras">
+<h2>🎅 Extra Christmas chaos rounds</h2>
+
+<div class="row">
+<button onclick="naughtyNice()">Naughty or Nice vote</button>
+<button class="secondary" onclick="stealPresent()">Steal a Present</button>
+<button class="gold" onclick="mysteryEnvelope()">Mystery Envelope</button>
+<button class="dark" onclick="finale()">Christmas Finale</button>
+</div>
+
+<div id="extraBox" class="small" style="margin-top:14px">
+Choose a special round.
+</div>
+</section>
+
+<section class="panel no-print">
+<h2>🖨️ Print your QR cards</h2>
+
+<p class="small">
+Generate 40 cards, then print this page. Cut them out and tuck them into crackers, place settings or a bowl.
+</p>
+
+<div class="row">
+<button onclick="makeCards()">Generate QR cards</button>
+<button class="secondary" onclick="window.print()">Print cards</button>
+</div>
+</section>
+
+<section class="panel" id="printArea">
+<h2 style="text-align:center">Christmas QR Chaos — Challenge Cards</h2>
+<div id="cards"></div>
+</section>
+
+</main>
+
+<footer>
+Made for a very merry, mildly chaotic Christmas. 🎄
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+
+const challenges = [
+
+["Christmas trivia","What year was the first commercial Christmas card produced?","Answer: 1843.",2],
+["Christmas trivia","Which reindeer's name means thunder in German?","Answer: Donner.",2],
+["Christmas trivia","In Home Alone, where are the McCallisters going on holiday?","Answer: Paris.",1],
+["Christmas trivia","Which plant is traditionally associated with kissing at Christmas?","Answer: Mistletoe.",1],
+["Christmas trivia","What is traditionally hidden inside a Christmas pudding?","Answer: A coin.",1],
+["Christmas trivia","Which country gifts the Christmas tree displayed in Trafalgar Square?","Answer: Norway.",2],
+["Christmas trivia","What did the true love give on the fifth day of Christmas?","Answer: Five gold rings.",1],
+
+["Brain teaser","What gets wetter the more it dries?","Answer: A towel.",1],
+["Brain teaser","What has a face and two hands but no arms or legs?","Answer: A clock.",1],
+["Brain teaser","I have branches but no fruit, trunk or leaves. What am I?","Answer: A bank.",2],
+["Brain teaser","What can travel around the world while staying in one corner?","Answer: A stamp.",2],
+["Brain teaser","The more you take, the more you leave behind. What are they?","Answer: Footsteps.",2],
+
+["Silly challenge","Sing Jingle Bells as if you are an opera singer.","The table votes.",3],
+["Silly challenge","Do your best impression of Santa stuck in a lift.","Make us laugh!",3],
+["Silly challenge","Describe Christmas dinner as dramatic football commentary.","At least 15 seconds.",3],
+["Silly challenge","Give a 10-second acceptance speech for Best Christmas Eater.","Thank two people.",2],
+["Silly challenge","Speak like a festive robot until your next turn.","Don't forget!",2],
+
+["Family challenge","Find someone at the table who has travelled furthest from home.","They confirm your answer.",2],
+["Family challenge","Get three people to sing one line of the same Christmas song.","All three must join in.",3],
+["Family challenge","Find someone with a funny Christmas mishap story.","They must tell the story.",2],
+["Family challenge","Make someone laugh without speaking.","You have 30 seconds.",3],
+["Family challenge","Say one lovely thing about the person opposite you.","No repeats.",1],
+
+["Secret mission","Work I blame the elves naturally into conversation.","Don't get spotted.",3],
+["Secret mission","Persuade someone to say reindeer.","Don't ask directly.",3],
+["Secret mission","Get somebody to offer you a mince pie.","Don't ask directly.",3],
+["Secret mission","Make someone say Merry Christmas twice within a minute.","Be subtle!",3],
+
+["Christmas chaos","Swap seats with someone by convincing them it is a royal decree.","They must agree.",2],
+["Christmas chaos","Ask a player a Christmas question. If they get it wrong, take a point.","Be fair.",2],
+["Christmas chaos","Everyone points at the person most likely to fall asleep after dinner.","If it is you, take the point.",2],
+["Christmas chaos","Invent a new name for Santa's sleigh and give a sales pitch.","Best pitch wins.",3],
+
+["Present panic","Describe the present you would least like to unwrap.","Most imaginative answer gets 2 points.",2],
+["Present panic","Mime opening the world's most disappointing present.","No words allowed.",2],
+["Present panic","Wrap an imaginary present with another player.","Best teamwork wins.",3],
+
+["Christmas music","Hum a Christmas song until someone guesses it.","No lyrics.",2],
+["Christmas music","Name five Christmas songs in 15 seconds.","No repeats.",2],
+["Christmas music","Sing a Christmas song in the style of a heavy metal band.","Table vote decides.",3],
+
+["Secret mission","Get someone to say turkey before your next turn.","Keep your mission secret.",3],
+["Secret mission","Compliment three people without using nice, lovely or great.","Complete before next round.",3],
+["Christmas chaos","Give another player a festive nickname that sticks for one round.","They must accept it.",2]
+
+];
+
+let players = JSON.parse(localStorage.getItem("xmasPlayers2") || "[]");
+let current = null;
+let timerId = null;
+let remaining = 30;
+
+function save() {
+ localStorage.setItem("xmasPlayers2",JSON.stringify(players));
+ renderScores();
+}
+
+function esc(s) {
+ return s.replace(/[&<>"']/g,c=>({
+ '&':'&amp;',
+ '<':'&lt;',
+ '>':'&gt;',
+ '"':'&quot;',
+ "'":'&#39;'
+ }[c]));
+}
+
+function addPlayer() {
+ let n = document.getElementById("playerName").value.trim();
+
+ if(!n) return;
+
+ if(players.some(p=>p.name.toLowerCase()===n.toLowerCase())) {
+  alert("Already added.");
+  return;
+ }
+
+ players.push({name:n,score:0,presents:0});
+
+ document.getElementById("playerName").value="";
+
+ save();
+ renderSelect();
+}
+
+function renderSelect() {
+ playerSelect.innerHTML =
+ '<option value="">Choose player</option>' +
+ players.map(p=>`<option>${esc(p.name)}</option>`).join("");
+}
+
+function renderScores() {
+ scoreboard.innerHTML = players.length
+ ? players.slice().sort((a,b)=>b.score-a.score).map((p,i)=>
+ `<div class="player">
+ <strong>${i+1}. ${esc(p.name)}</strong>
+ <span>${p.score} pts</span>
+ <div class="small">🎁 ${p.presents||0} presents</div>
+ </div>`
+ ).join("")
+ : '<p class="small">Add players to get started.</p>';
+}
+
+function showChallenge(i) {
+ current=i;
+
+ let c=challenges[i];
+
+ challenge.innerHTML=`
+ <div>
+ <div class="category">${c[0]} · ${c[3]} suggested points</div>
+ <div class="prompt">${c[1]}</div>
+ <div class="detail">${c[2]}</div>
+ <div class="small" style="margin-top:12px">
+ Card ${i+1} of ${challenges.length}
+ </div>
+ </div>`;
+
+ remaining=+(duration.value);
+ updateTimer();
+}
+
+function drawChallenge() {
+ showChallenge(Math.floor(Math.random()*challenges.length));
+}
+
+function nextChallenge() {
+ drawChallenge();
+}
+
+function award(n) {
+ let name=playerSelect.value;
+
+ if(!name) {
+  alert("Choose the player first.");
+  return;
+ }
+
+ let p=players.find(x=>x.name===name);
+
+ p.score+=n;
+ save();
+
+ extraBox.textContent=name+" awarded "+n+" points!";
+}
+
+function resetScores() {
+ if(!confirm("Reset all scores and presents?")) return;
+
+ players.forEach(p=>{
+  p.score=0;
+  p.presents=0;
+ });
+
+ save();
+}
+
+function saveUrl() {
+ let u=baseUrl.value.trim();
+
+ if(!/^https?:\/\//i.test(u)) {
+  alert("Enter the full published web address, starting https://");
+  return;
+ }
+
+ localStorage.setItem("xmasBaseUrl2",u);
+ urlStatus.textContent="Saved: "+u;
+}
+
+function getUrl() {
+ return baseUrl.value.trim() ||
+ localStorage.getItem("xmasBaseUrl2") || "";
+}
+
+function makeCards() {
+ let u=getUrl();
+
+ if(!u) {
+  alert("Publish the game and paste its URL first.");
+  return;
+ }
+
+ if(typeof QRCode==="undefined") {
+  alert("QR generator couldn't load. Check your internet connection and reload.");
+  return;
+ }
+
+ cards.innerHTML="";
+
+ challenges.forEach((c,i)=>{
+
+  let d=document.createElement("div");
+
+  d.className="qcard";
+
+  d.innerHTML=`
+  <h3>🎄 ${esc(c[0])}</h3>
+  <div class="qr"></div>
+  <strong>SCAN ME</strong>
+  <p>Christmas QR Chaos · Card ${i+1}</p>`;
+
+  cards.appendChild(d);
+
+  new QRCode(d.querySelector(".qr"),{
+   text:u+(u.includes("?")?"&":"?")+"card="+(i+1),
+   width:128,
+   height:128,
+   correctLevel:QRCode.CorrectLevel.M
+  });
+
+ });
+
+ printArea.style.display="block";
+}
+
+function updateTimer() {
+ timer.textContent="00:"+String(remaining).padStart(2,"0");
+}
+
+function startTimer() {
+ clearInterval(timerId);
+
+ remaining=+duration.value;
+ updateTimer();
+
+ timerId=setInterval(()=>{
+
+  remaining--;
+  updateTimer();
+
+  if(remaining<=0) {
+
+   clearInterval(timerId);
+   timerId=null;
+
+   timer.textContent="⏰ TIME!";
+
+   extraBox.textContent=
+   "Time is up! Table vote: did they complete the challenge?";
+
+  }
+
+ },1000);
+}
+
+function loadCard() {
+
+ let id=+(new URLSearchParams(location.search).get("card")||0);
+
+ if(id>0 && id<=challenges.length) {
+
+  showChallenge(id-1);
+
+  setTimeout(()=>{
+   document.getElementById("play").scrollIntoView({behavior:"smooth"});
+  },250);
+
+ }
+}
+
+function special(msg) {
+ extraBox.innerHTML=msg;
+}
+
+function naughtyNice() {
+
+ if(!players.length) {
+  alert("Add players first.");
+  return;
+ }
+
+ let who=players[Math.floor(Math.random()*players.length)];
+
+ special(`
+ <span class="badge">NAUGHTY OR NICE?</span>
+ <p><b>${esc(who.name)}</b> is in the spotlight.</p>
+ <p>Everyone secretly decides: Naughty or Nice?
+ Count to three and point!</p>
+ <p>Majority Nice: 2 points.</p>
+ <p>Majority Naughty: complete a festive forfeit, then get 1 point.</p>
+ <button onclick="voteNice('${encodeURIComponent(who.name)}',true)">Nice — award 2</button>
+ <button class="gold" onclick="voteNice('${encodeURIComponent(who.name)}',false)">Naughty — forfeit +1</button>
+ `);
+}
+
+function voteNice(encoded,nice) {
+
+ let p=players.find(x=>x.name===decodeURIComponent(encoded));
+
+ if(p) {
+
+  p.score+=nice?2:1;
+
+  save();
+
+  special(
+   esc(p.name)+" has been judged "+
+   (nice?"NICE! 2 points awarded.":"NAUGHTY! Complete a forfeit, then 1 point awarded.")
+  );
+
+ }
+
+}
+
+function stealPresent() {
+
+ if(players.length<2) {
+  alert("Add at least two players.");
+  return;
+ }
+
+ let names=players.map(p=>p.name);
+
+ let from=prompt(
+  "Who are you stealing a present from?\n"+names.join(", ")
+ );
+
+ if(!from) return;
+
+ let donor=players.find(
+  p=>p.name.toLowerCase()===from.trim().toLowerCase()
+ );
+
+ if(!donor || !donor.presents) {
+  alert("That player has no presents to steal.");
+  return;
+ }
+
+ let to=playerSelect.value;
+
+ if(!to) {
+  alert("Choose the thief in the player selector first.");
+  return;
+ }
+
+ if(to===donor.name) {
+  alert("You can't steal from yourself!");
+  return;
+ }
+
+ donor.presents--;
+
+ players.find(p=>p.name===to).presents++;
+
+ save();
+
+ special("🎁 "+esc(to)+" stole a present from "+esc(donor.name)+"!");
+
+}
+
+function mysteryEnvelope() {
+
+ let options=[
+ ["BONUS GIFT","Take 3 points."],
+ ["SWAP IT","Swap your score with the player directly above you."],
+ ["SANTA'S SHIELD","You are protected from the next point theft."],
+ ["ELF DUTY","Do a silly festive impression. If the table laughs, take 2 points."],
+ ["DOUBLE OR NOTHING","Attempt your next challenge for double points."]
+ ];
+
+ let o=options[Math.floor(Math.random()*options.length)];
+
+ let name=playerSelect.value;
+
+ special(`
+ <div class="gift">✉️🎁</div>
+ <span class="badge">MYSTERY ENVELOPE</span>
+ <h3>${o[0]}</h3>
+ <p>${o[1]}</p>
+ <p>Player: <b>${esc(name||"Select a player first")}</b></p>
+ <button onclick="claimMystery('${encodeURIComponent(name)}','${encodeURIComponent(o[0])}')">
+ Reveal / claim
+ </button>
+ `);
+
+}
+
+function claimMystery(n,e) {
+
+ let name=decodeURIComponent(n);
+ let event=decodeURIComponent(e);
+
+ let p=players.find(x=>x.name===name);
+
+ if(!p) {
+  alert("Choose a player first.");
+  return;
+ }
+
+ if(event==="BONUS GIFT") p.score+=3;
+
+ if(event==="ELF DUTY") p.score+=2;
+
+ if(event==="SWAP IT") {
+
+  let sorted=players.slice().sort((a,b)=>b.score-a.score);
+
+  let idx=sorted.findIndex(x=>x.name===name);
+
+  if(idx>0) {
+
+   let other=sorted[idx-1];
+
+   let v=p.score;
+
+   p.score=other.score;
+   other.score=v;
+
+  }
+
+ }
+
+ if(event==="DOUBLE OR NOTHING") p.score+=2;
+
+ if(event==="SANTA'S SHIELD") p.score+=1;
+
+ save();
+
+ special(esc(name)+" opened "+event+"!");
+
+}
+
+function finale() {
+
+ if(!players.length) {
+  alert("Add players first.");
+  return;
+ }
+
+ let sorted=players.slice().sort((a,b)=>b.score-a.score);
+
+ let winner=sorted[0];
+
+ special(`
+ <div class="gift">🏆🎄🏆</div>
+ <h2>THE CHRISTMAS CHAMPION IS...</h2>
+ <h1 style="color:#a51d2d">${esc(winner.name)}!</h1>
+ <p>With ${winner.score} points and ${winner.presents||0} presents.</p>
+ <p>Give them a standing ovation, or at least a mince pie!</p>
+ <p>Runner-up: ${sorted[1]?esc(sorted[1].name):"Everyone else is still in with a chance!"}</p>
+ `);
+
+}
+
+baseUrl.value=localStorage.getItem("xmasBaseUrl2")||"";
+
+if(baseUrl.value) {
+ urlStatus.textContent="Saved URL: "+baseUrl.value;
+}
+
+renderSelect();
+renderScores();
+loadCard();
+
+</script>
+
+</body>
+</html>
