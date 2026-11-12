@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>15 Puzzle</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #172554, #312e81);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .game {
+        width: 100%;
+        max-width: 440px;
+        text-align: center;
+    }
+
+    h1 {
+        font-size: 32px;
+        margin-bottom: 5px;
+    }
+
+    .subtitle {
+        color: #c7d2fe;
+        margin-bottom: 25px;
+    }
+
+    .stats {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+        background: rgba(255,255,255,0.1);
+        padding: 15px;
+        border-radius: 12px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #c7d2fe;
+        text-transform: uppercase;
+    }
+
+    .stat-value {
+        font-size: 25px;
+        font-weight: bold;
+        margin-top: 5px;
+    }
+
+    .board {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+        padding: 8px;
+        background: rgba(0,0,0,0.25);
+        border-radius: 14px;
+        aspect-ratio: 1;
+    }
+
+    .tile {
+        background: linear-gradient(145deg, #818cf8, #4f46e5);
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(22px, 7vw, 36px);
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #312e81;
+        user-select: none;
+        transition: background 0.15s;
+    }
+
+    .tile:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #312e81;
+    }
+
+    .tile.empty {
+        background: rgba(0,0,0,0.2);
+        box-shadow: none;
+        cursor: default;
+    }
+
+    .buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 22px;
+    }
+
+    button {
+        flex: 1;
+        padding: 15px 10px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .reset {
+        background: #fbbf24;
+        color: #422006;
+    }
+
+    .timer {
+        background: #22c55e;
+        color: #052e16;
+    }
+
+    .message {
+        min-height: 35px;
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: bold;
+        color: #fde68a;
+    }
+
+    .instructions {
+        color: #c7d2fe;
+        font-size: 13px;
+        margin-top: 15px;
+        line-height: 1.6;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+    <h1>🧩 15 Puzzle</h1>
+    <div class="subtitle">Can you put the numbers back in order?</div>
+
+    <div class="stats">
+        <div>
+            <div class="stat-label">Moves</div>
+            <div class="stat-value" id="moves">0</div>
+        </div>
+
+        <div>
+            <div class="stat-label">Time</div>
+            <div class="stat-value" id="time">00:00</div>
+        </div>
+    </div>
+
+    <div class="board" id="board"></div>
+
+    <div class="buttons">
+        <button class="reset" onclick="resetGame()">
+            ↻ Reset
+        </button>
+
+        <button class="timer" id="timerButton" onclick="toggleTimer()">
+            ▶ Start Timer
+        </button>
+    </div>
+
+    <div class="message" id="message"></div>
+
+    <div class="instructions">
+        Slide the numbered squares into the empty space.<br>
+        Arrange the numbers from 1 to 15, leaving the empty
+        space at the bottom right.
+    </div>
+
+</div>
+
+<script>
+
+const board = document.getElementById("board");
+
+let tiles = [];
+let moves = 0;
+let seconds = 0;
+let timerRunning = false;
+let timerInterval = null;
+let gameComplete = false;
+
+function render() {
+
+    board.innerHTML = "";
+
+    tiles.forEach((number, index) => {
+
+        const tile = document.createElement("div");
+
+        tile.className = number === 0
+            ? "tile empty"
+            : "tile";
+
+        tile.textContent = number || "";
+
+        if (number !== 0) {
+            tile.addEventListener("click", () => moveTile(index));
+        }
+
+        board.appendChild(tile);
+    });
+}
+
+function resetGame() {
+
+    stopTimer();
+
+    tiles = Array.from({length: 16}, (_, i) =>
+        i === 15 ? 0 : i + 1
+    );
+
+    // Shuffle by making random legal moves.
+    // This guarantees the puzzle is solvable.
+
+    let previousEmpty = -1;
+
+    for (let i = 0; i < 300; i++) {
+
+        const empty = tiles.indexOf(0);
+
+        let neighbours = getNeighbours(empty);
+
+        neighbours = neighbours.filter(
+            index => index !== previousEmpty
+        );
+
+        const randomIndex =
+            neighbours[Math.floor(Math.random() * neighbours.length)];
+
+        previousEmpty = empty;
+
+        [tiles[empty], tiles[randomIndex]] =
+            [tiles[randomIndex], tiles[empty]];
+    }
+
+    moves = 0;
+    seconds = 0;
+    gameComplete = false;
+
+    updateStats();
+    render();
+
+    document.getElementById("message").textContent = "";
+    document.getElementById("timerButton").textContent =
+        "▶ Start Timer";
+}
+
+function getNeighbours(index) {
+
+    const row = Math.floor(index / 4);
+    const col = index % 4;
+
+    const neighbours = [];
+
+    if (row > 0) neighbours.push(index - 4);
+    if (row < 3) neighbours.push(index + 4);
+    if (col > 0) neighbours.push(index - 1);
+    if (col < 3) neighbours.push(index + 1);
+
+    return neighbours;
+}
+
+function moveTile(index) {
+
+    if (gameComplete) return;
+
+    const empty = tiles.indexOf(0);
+
+    if (!getNeighbours(empty).includes(index)) return;
+
+    // Start timer automatically on first move
+    if (!timerRunning && seconds === 0) {
+        startTimer();
+    }
+
+    [tiles[empty], tiles[index]] =
+        [tiles[index], tiles[empty]];
+
+    moves++;
+
+    render();
+    updateStats();
+
+    checkWin();
+}
+
+function toggleTimer() {
+
+    if (gameComplete) return;
+
+    if (timerRunning) {
+        stopTimer();
+    } else {
+        startTimer();
+    }
+}
+
+function startTimer() {
+
+    if (timerRunning) return;
+
+    timerRunning = true;
+
+    document.getElementById("timerButton").textContent =
+        "⏸ Pause Timer";
+
+    timerInterval = setInterval(() => {
+
+        seconds++;
+        updateStats();
+
+    }, 1000);
+}
+
+function stopTimer() {
+
+    timerRunning = false;
+
+    clearInterval(timerInterval);
+
+    document.getElementById("timerButton").textContent =
+        "▶ Start Timer";
+}
+
+function updateStats() {
+
+    document.getElementById("moves").textContent = moves;
+
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+
+    document.getElementById("time").textContent =
+        String(minutes).padStart(2, "0") + ":" +
+        String(remainingSeconds).padStart(2, "0");
+}
+
+function checkWin() {
+
+    const solved = tiles.every((number, index) =>
+        number === (index === 15 ? 0 : index + 1)
+    );
+
+    if (solved) {
+
+        gameComplete = true;
+        stopTimer();
+
+        document.getElementById("message").innerHTML =
+            "🎉 Congratulations! Puzzle solved!<br>" +
+            "<small>" + moves + " moves in " +
+            document.getElementById("time").textContent +
+            "</small>";
+    }
+}
+
+// Allow keyboard controls too
+
+document.addEventListener("keydown", event => {
+
+    const empty = tiles.indexOf(0);
+    const row = Math.floor(empty / 4);
+    const col = empty % 4;
+
+    let target = -1;
+
+    switch(event.key) {
+
+        case "ArrowUp":
+            if (row < 3) target = empty + 4;
+            break;
+
+        case "ArrowDown":
+            if (row > 0) target = empty - 4;
+            break;
+
+        case "ArrowLeft":
+            if (col < 3) target = empty + 1;
+            break;
+
+        case "ArrowRight":
+            if (col > 0) target = empty - 1;
+            break;
+    }
+
+    if (target !== -1) {
+        event.preventDefault();
+        moveTile(target);
+    }
+});
+
+// Start game
+
+resetGame();
+
+</script>
+
+</body>
+</html>
