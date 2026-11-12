@@ -6,142 +6,136 @@
 <title>Galaga Arcade</title>
 
 <style>
-* {
-    box-sizing: border-box;
-}
+* { box-sizing:border-box; }
 
 body {
-    margin: 0;
-    background: #050713;
-    color: #fff;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    overflow-x: hidden;
-    touch-action: manipulation;
+    margin:0;
+    background:#050713;
+    color:white;
+    font-family:Arial,sans-serif;
+    text-align:center;
+    overflow-x:hidden;
+    touch-action:manipulation;
 }
 
-header {
-    padding: 10px 5px 4px;
-}
+header { padding:10px 5px 4px; }
 
 h1 {
-    margin: 0;
-    font-size: 25px;
-    letter-spacing: 5px;
-    color: #35f5ff;
-    text-shadow: 0 0 12px #00bfff;
+    margin:0;
+    font-size:25px;
+    letter-spacing:5px;
+    color:#35f5ff;
+    text-shadow:0 0 12px #00bfff;
 }
 
 .stats {
-    display: flex;
-    justify-content: space-around;
-    max-width: 600px;
-    margin: 10px auto;
-    font-size: 14px;
-    color: #ffe45c;
+    display:flex;
+    justify-content:space-around;
+    max-width:600px;
+    margin:10px auto;
+    font-size:14px;
+    color:#ffe45c;
 }
 
 .stats span {
-    display: block;
-    font-size: 20px;
-    font-weight: bold;
-    margin-top: 3px;
+    display:block;
+    font-size:20px;
+    font-weight:bold;
+    margin-top:3px;
 }
 
 .gamearea {
-    width: min(96vw, 600px);
-    margin: auto;
-    position: relative;
-    border: 2px solid #244a80;
-    box-shadow: 0 0 18px #123c80;
-    background: #000;
+    width:min(96vw,600px);
+    margin:auto;
+    position:relative;
+    border:2px solid #244a80;
+    box-shadow:0 0 18px #123c80;
+    background:#000;
 }
 
 canvas {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 3;
-    background: #02040e;
+    display:block;
+    width:100%;
+    height:auto;
+    aspect-ratio:4/3;
+    background:#02040e;
 }
 
 .message {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    background: rgba(0,0,0,.72);
-    pointer-events: none;
-    padding: 20px;
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    background:rgba(0,0,0,.72);
+    pointer-events:none;
+    padding:20px;
 }
 
 .message h2 {
-    color: #ffe45c;
-    font-size: 27px;
-    letter-spacing: 3px;
-    margin: 0 0 12px;
+    color:#ffe45c;
+    font-size:27px;
+    letter-spacing:3px;
+    margin:0 0 12px;
 }
 
 .message p {
-    font-size: 14px;
-    line-height: 1.6;
-    color: #fff;
+    font-size:14px;
+    line-height:1.6;
 }
 
 button {
-    border: 1px solid #28dfff;
-    background: #10264c;
-    color: white;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: none;
+    border:1px solid #28dfff;
+    background:#10264c;
+    color:white;
+    border-radius:8px;
+    font-weight:bold;
+    cursor:pointer;
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:none;
 }
 
-button:active {
-    background: #1768a0;
-}
+button:active { background:#1768a0; }
 
 .controls {
-    width: min(96vw, 600px);
-    margin: 10px auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
+    width:min(96vw,600px);
+    margin:10px auto;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
 }
 
 .controls button {
-    height: 64px;
-    font-size: 24px;
+    height:68px;
+    font-size:25px;
 }
 
 .controls .fire {
-    background: #8b1717;
-    border-color: #ff6464;
-    font-size: 19px;
+    background:#9c1010;
+    border:2px solid #ff6464;
+    font-size:20px;
+    box-shadow:0 0 12px #9c1010;
 }
 
 .extras {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin: 8px auto 15px;
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin:8px auto 15px;
 }
 
 .extras button {
-    padding: 10px 18px;
-    font-size: 13px;
-    touch-action: manipulation;
+    padding:10px 18px;
+    font-size:13px;
+    touch-action:manipulation;
 }
 
 .help {
-    color: #8494b7;
-    font-size: 11px;
-    padding: 0 10px 15px;
+    color:#8494b7;
+    font-size:11px;
+    padding:0 10px 15px;
 }
 </style>
 </head>
@@ -150,7 +144,6 @@ button:active {
 
 <header>
     <h1>GALAGA ARCADE</h1>
-
     <div class="stats">
         <div>SCORE<span id="score">0</span></div>
         <div>LIVES<span id="lives">3</span></div>
@@ -193,8 +186,8 @@ button:active {
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-const W = canvas.width;
-const H = canvas.height;
+const W = 800;
+const H = 600;
 
 const scoreEl = document.getElementById("score");
 const livesEl = document.getElementById("lives");
@@ -208,16 +201,14 @@ let level = 1;
 let running = false;
 let gameOver = false;
 let paused = false;
-
 let soundOn = true;
 let audio = null;
 
 let lastTime = 0;
 let fireTimer = 0;
-let enemyTimer = 0;
+let enemyTimer = 1;
 let diveTimer = 2;
 let formationDirection = 1;
-let formationOffset = 0;
 
 let player;
 let aliens = [];
@@ -261,60 +252,37 @@ const alienPatterns = [
     ]
 ];
 
-const alienColours = [
-    "#ff4e83",
-    "#55f5a6",
-    "#ffd84a"
-];
+const alienColours = ["#ff4e83","#55f5a6","#ffd84a"];
 
 function initAudio() {
     if (!audio) {
         audio = new (window.AudioContext || window.webkitAudioContext)();
     }
-
-    if (audio.state === "suspended") {
-        audio.resume();
-    }
+    if (audio.state === "suspended") audio.resume();
 }
 
-function tone(freq, duration, type = "square", volume = 0.035) {
+function tone(freq,duration,type="square",volume=0.035) {
     if (!soundOn) return;
 
     try {
         initAudio();
-
         const oscillator = audio.createOscillator();
         const gain = audio.createGain();
 
         oscillator.type = type;
         oscillator.frequency.value = freq;
 
-        gain.gain.setValueAtTime(volume, audio.currentTime);
+        gain.gain.setValueAtTime(volume,audio.currentTime);
         gain.gain.exponentialRampToValueAtTime(
-            0.001,
-            audio.currentTime + duration
+            0.001,audio.currentTime+duration
         );
 
         oscillator.connect(gain);
         gain.connect(audio.destination);
 
         oscillator.start();
-        oscillator.stop(audio.currentTime + duration);
-    } catch (e) {
-        // Audio is optional.
-    }
-}
-
-function shootSound() {
-    tone(650, 0.09, "square", 0.025);
-}
-
-function explosionSound() {
-    tone(100, 0.22, "sawtooth", 0.06);
-}
-
-function enemySound() {
-    tone(240, 0.12, "square", 0.025);
+        oscillator.stop(audio.currentTime+duration);
+    } catch(e) {}
 }
 
 function updateStats() {
@@ -325,13 +293,12 @@ function updateStats() {
 
 function createStars() {
     stars = [];
-
-    for (let i = 0; i < 90; i++) {
+    for (let i=0;i<90;i++) {
         stars.push({
-            x: Math.random() * W,
-            y: Math.random() * H,
-            size: Math.random() * 2 + 0.5,
-            speed: Math.random() * 35 + 15
+            x:Math.random()*W,
+            y:Math.random()*H,
+            size:Math.random()*2+0.5,
+            speed:Math.random()*35+15
         });
     }
 }
@@ -339,418 +306,402 @@ function createStars() {
 function createAliens() {
     aliens = [];
 
-    const columns = 10;
-    const rows = 4;
-    const spacingX = 58;
-    const spacingY = 48;
-
-    for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < columns; col++) {
-
-            const x = 120 + col * spacingX;
-            const y = 90 + row * spacingY;
+    for (let row=0;row<4;row++) {
+        for (let col=0;col<10;col++) {
+            const x=120+col*58;
+            const y=90+row*48;
 
             aliens.push({
-                x,
-                y,
-                homeX: x,
-                homeY: y,
-                row,
-                col,
-                type: row < 2 ? 0 : row === 2 ? 1 : 2,
-                alive: true,
-                diving: false,
-                diveTime: 0,
-                diveDuration: 2.5,
-                diveStartX: x,
-                diveStartY: y,
-                diveShot: false,
-                anim: Math.random() * 10
+                x,y,homeX:x,homeY:y,
+                row,col,
+                type:row<2?0:row===2?1:2,
+                alive:true,
+                diving:false,
+                diveTime:0,
+                diveDuration:2.5,
+                diveStartX:x,
+                diveStartY:y,
+                diveShot:false,
+                anim:Math.random()*10
             });
         }
     }
 
-    formationDirection = 1;
-    formationOffset = 0;
+    formationDirection=1;
 }
 
 function resetPlayer() {
-    player = {
-        x: W / 2,
-        y: H - 65,
-        width: 42,
-        height: 38,
-        speed: 390,
-        invulnerable: 1.5
+    player={
+        x:W/2,
+        y:H-65,
+        width:42,
+        height:38,
+        speed:390,
+        invulnerable:1.5
     };
 }
 
 function newGame() {
     initAudio();
 
-    score = 0;
-    lives = 3;
-    level = 1;
+    score=0;
+    lives=3;
+    level=1;
 
-    playerBullets = [];
-    enemyBullets = [];
-    particles = [];
+    playerBullets=[];
+    enemyBullets=[];
+    particles=[];
 
     resetPlayer();
     createAliens();
 
-    fireTimer = 0;
-    enemyTimer = 1.5;
-    diveTimer = 2;
+    fireTimer=0;
+    enemyTimer=1.5;
+    diveTimer=2;
 
-    running = true;
-    paused = false;
-    gameOver = false;
+    running=true;
+    paused=false;
+    gameOver=false;
 
-    messageEl.style.display = "none";
+    messageEl.style.display="none";
+
+    document.getElementById("pause").textContent="PAUSE";
 
     updateStats();
 }
 
 function endGame() {
-    running = false;
-    gameOver = true;
+    running=false;
+    gameOver=true;
 
-    messageEl.style.display = "flex";
-    messageEl.innerHTML = `
+    messageEl.style.display="flex";
+    messageEl.innerHTML=`
         <h2>GAME OVER</h2>
         <p>FINAL SCORE: ${score}</p>
         <p>Press ENTER or RESTART to play again</p>
     `;
 
-    tone(100, 0.7, "sawtooth", 0.05);
+    tone(100,0.7,"sawtooth",0.05);
 }
 
 function nextLevel() {
     level++;
-
-    playerBullets = [];
-    enemyBullets = [];
-
+    playerBullets=[];
+    enemyBullets=[];
     createAliens();
 
-    diveTimer = 1.5;
-    enemyTimer = 1;
+    diveTimer=1.5;
+    enemyTimer=1;
 
     updateStats();
-    tone(850, 0.35, "sine", 0.06);
+    tone(850,0.35,"sine",0.06);
 }
 
-function makeExplosion(x, y, colour, count = 12) {
-    for (let i = 0; i < count; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 150 + 40;
+function makeExplosion(x,y,colour,count=12) {
+    for (let i=0;i<count;i++) {
+        const angle=Math.random()*Math.PI*2;
+        const speed=Math.random()*150+40;
 
         particles.push({
-            x,
-            y,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            life: Math.random() * 0.5 + 0.3,
-            maxLife: 0.8,
+            x,y,
+            vx:Math.cos(angle)*speed,
+            vy:Math.sin(angle)*speed,
+            life:Math.random()*0.5+0.3,
+            maxLife:0.8,
             colour,
-            size: Math.random() * 4 + 2
+            size:Math.random()*4+2
         });
     }
 }
 
-function drawPixelAlien(x, y, type, frame = 0, scale = 2.5) {
-    const pattern = alienPatterns[type];
+function drawPixelAlien(x,y,type,frame=0,scale=2.5) {
+    const pattern=alienPatterns[type];
 
     ctx.save();
-    ctx.translate(x, y);
+    ctx.translate(x,y);
+    ctx.fillStyle=alienColours[type];
 
-    const colour = alienColours[type];
+    for (let row=0;row<pattern.length;row++) {
+        for (let col=0;col<pattern[row].length;col++) {
+            if (pattern[row][col]!=="1") continue;
 
-    ctx.fillStyle = colour;
+            let px=col;
 
-    for (let row = 0; row < pattern.length; row++) {
-        for (let col = 0; col < pattern[row].length; col++) {
-
-            if (pattern[row][col] !== "1") continue;
-
-            let px = col;
-            let py = row;
-
-            if (frame && row >= 6) {
-                if (col === 0) px -= 1;
-                if (col === 7) px += 1;
+            if (frame && row>=6) {
+                if (col===0) px-=1;
+                if (col===7) px+=1;
             }
 
             ctx.fillRect(
-                (px - 4) * scale,
-                (py - 4) * scale,
+                (px-4)*scale,
+                (row-4)*scale,
                 scale,
                 scale
             );
         }
     }
 
-    // Eyes
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(-7, -4, 3, 3);
-    ctx.fillRect(4, -4, 3, 3);
+    ctx.fillStyle="#fff";
+    ctx.fillRect(-7,-4,3,3);
+    ctx.fillRect(4,-4,3,3);
 
     ctx.restore();
 }
 
 function drawPlayer() {
-    if (player.invulnerable > 0 &&
-        Math.floor(performance.now() / 100) % 2 === 0) {
-        return;
-    }
-
-    const x = player.x;
-    const y = player.y;
+    if (player.invulnerable>0 &&
+        Math.floor(performance.now()/100)%2===0) return;
 
     ctx.save();
-    ctx.translate(x, y);
+    ctx.translate(player.x,player.y);
 
-    // Engine glow
-    ctx.fillStyle = "#ff9c28";
-    ctx.fillRect(-7, 15, 14, 12);
+    ctx.fillStyle="#ff9c28";
+    ctx.fillRect(-7,15,14,12);
 
-    ctx.fillStyle = "#ffec6b";
-    ctx.fillRect(-4, 16, 8, 10);
+    ctx.fillStyle="#ffec6b";
+    ctx.fillRect(-4,16,8,10);
 
-    // Main ship
-    ctx.fillStyle = "#42eaff";
+    ctx.fillStyle="#42eaff";
     ctx.beginPath();
-    ctx.moveTo(0, -22);
-    ctx.lineTo(19, 17);
-    ctx.lineTo(8, 12);
-    ctx.lineTo(0, 19);
-    ctx.lineTo(-8, 12);
-    ctx.lineTo(-19, 17);
+    ctx.moveTo(0,-22);
+    ctx.lineTo(19,17);
+    ctx.lineTo(8,12);
+    ctx.lineTo(0,19);
+    ctx.lineTo(-8,12);
+    ctx.lineTo(-19,17);
     ctx.closePath();
     ctx.fill();
 
-    // Cockpit
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(-4, -5, 8, 13);
+    ctx.fillStyle="#fff";
+    ctx.fillRect(-4,-5,8,13);
 
-    ctx.fillStyle = "#2876ff";
-    ctx.fillRect(-2, -2, 4, 8);
+    ctx.fillStyle="#2876ff";
+    ctx.fillRect(-2,-2,4,8);
 
     ctx.restore();
 }
 
 function drawStars(dt) {
-    ctx.fillStyle = "#02040e";
-    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle="#02040e";
+    ctx.fillRect(0,0,W,H);
 
     for (const s of stars) {
-        s.y += s.speed * dt;
+        s.y+=s.speed*dt;
 
-        if (s.y > H) {
-            s.y = 0;
-            s.x = Math.random() * W;
+        if (s.y>H) {
+            s.y=0;
+            s.x=Math.random()*W;
         }
 
-        ctx.fillStyle = `rgba(180,210,255,${0.3 + s.size / 4})`;
-        ctx.fillRect(s.x, s.y, s.size, s.size);
+        ctx.fillStyle=`rgba(180,210,255,${0.3+s.size/4})`;
+        ctx.fillRect(s.x,s.y,s.size,s.size);
     }
 }
 
 function drawBullets() {
+    // Player laser shots
     for (const b of playerBullets) {
-        ctx.fillStyle = "#54faff";
-        ctx.shadowBlur = 12;
-        ctx.shadowColor = "#00eaff";
-        ctx.fillRect(b.x - 3, b.y - 11, 6, 17);
-        ctx.shadowBlur = 0;
+        ctx.save();
+        ctx.shadowBlur=15;
+        ctx.shadowColor="#00ffff";
+        ctx.fillStyle="#54faff";
+        ctx.fillRect(b.x-3,b.y-13,6,20);
+        ctx.restore();
     }
 
+    // Enemy bombs: bright red with a yellow centre and glowing trail
     for (const b of enemyBullets) {
-        ctx.fillStyle = "#ff547c";
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = "#ff174f";
-        ctx.fillRect(b.x - 4, b.y - 5, 8, 12);
-        ctx.shadowBlur = 0;
+        ctx.save();
+
+        ctx.shadowBlur=18;
+        ctx.shadowColor="#ff2020";
+
+        ctx.strokeStyle="#ff3434";
+        ctx.lineWidth=5;
+        ctx.beginPath();
+        ctx.moveTo(b.x-b.vx*0.045,b.y-b.vy*0.045);
+        ctx.lineTo(b.x,b.y);
+        ctx.stroke();
+
+        ctx.fillStyle="#ff2525";
+        ctx.beginPath();
+        ctx.ellipse(b.x,b.y,7,10,0,0,Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle="#ffe45c";
+        ctx.beginPath();
+        ctx.arc(b.x,b.y,3,0,Math.PI*2);
+        ctx.fill();
+
+        ctx.restore();
     }
 }
 
 function drawParticles(dt) {
     for (const p of particles) {
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
+        p.x+=p.vx*dt;
+        p.y+=p.vy*dt;
+        p.vx*=0.98;
+        p.vy*=0.98;
+        p.life-=dt;
 
-        p.vx *= 0.98;
-        p.vy *= 0.98;
-
-        p.life -= dt;
-
-        ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
-        ctx.fillStyle = p.colour;
-        ctx.fillRect(p.x, p.y, p.size, p.size);
+        ctx.globalAlpha=Math.max(0,p.life/p.maxLife);
+        ctx.fillStyle=p.colour;
+        ctx.fillRect(p.x,p.y,p.size,p.size);
     }
 
-    ctx.globalAlpha = 1;
-
-    particles = particles.filter(p => p.life > 0);
+    ctx.globalAlpha=1;
+    particles=particles.filter(p=>p.life>0);
 }
 
 function drawAliens() {
     for (const a of aliens) {
         if (!a.alive) continue;
 
-        const frame = Math.floor(performance.now() / 350 + a.anim) % 2;
+        const frame=Math.floor(performance.now()/350+a.anim)%2;
 
         drawPixelAlien(
-            a.x,
-            a.y,
-            a.type,
-            frame,
-            a.diving ? 3 : 2.5
+            a.x,a.y,a.type,frame,
+            a.diving?3:2.5
         );
     }
 }
 
 function firePlayerBullet() {
-    if (playerBullets.length >= 8) return;
+    if (playerBullets.length>=8) return;
 
+    // IMPORTANT: active must be true or the bullet is immediately removed.
     playerBullets.push({
-        x: player.x,
-        y: player.y - 20,
-        speed: 600
+        x:player.x,
+        y:player.y-20,
+        speed:600,
+        active:true
     });
 
-    shootSound();
+    tone(650,0.09,"square",0.025);
 }
 
-function fireEnemyBullet(x, y) {
-    const dx = player.x - x;
-    const dy = player.y - y;
-    const length = Math.sqrt(dx * dx + dy * dy) || 1;
+function fireEnemyBullet(x,y) {
+    const dx=player.x-x;
+    const dy=player.y-y;
+    const length=Math.sqrt(dx*dx+dy*dy)||1;
 
+    // IMPORTANT: active must be true or the bomb is immediately removed.
     enemyBullets.push({
-        x,
-        y,
-        vx: dx / length * 230,
-        vy: dy / length * 230
+        x,y,
+        vx:dx/length*230,
+        vy:dy/length*230,
+        active:true
     });
 
-    enemySound();
+    tone(240,0.12,"square",0.025);
 }
 
 function startDive() {
-    const candidates = aliens.filter(
-        a => a.alive && !a.diving && a.row < 3
+    const candidates=aliens.filter(
+        a=>a.alive&&!a.diving&&a.row<3
     );
 
     if (!candidates.length) return;
 
-    const alien = candidates[
-        Math.floor(Math.random() * candidates.length)
+    const alien=candidates[
+        Math.floor(Math.random()*candidates.length)
     ];
 
-    alien.diving = true;
-    alien.diveTime = 0;
-    alien.diveDuration = Math.max(1.7, 2.7 - level * 0.08);
-    alien.diveStartX = alien.x;
-    alien.diveStartY = alien.y;
-    alien.diveShot = false;
+    alien.diving=true;
+    alien.diveTime=0;
+    alien.diveDuration=Math.max(1.7,2.7-level*0.08);
+    alien.diveStartX=alien.x;
+    alien.diveStartY=alien.y;
+    alien.diveShot=false;
 }
 
 function updateAliens(dt) {
-    let left = Infinity;
-    let right = -Infinity;
+    let left=Infinity;
+    let right=-Infinity;
 
     for (const a of aliens) {
-        if (!a.alive || a.diving) continue;
-
-        left = Math.min(left, a.x);
-        right = Math.max(right, a.x);
+        if (!a.alive||a.diving) continue;
+        left=Math.min(left,a.x);
+        right=Math.max(right,a.x);
     }
 
-    const speed = 28 + level * 5;
+    const speed=28+level*5;
 
-    if (right > W - 65) formationDirection = -1;
-    if (left < 65) formationDirection = 1;
+    if (right>W-65) formationDirection=-1;
+    if (left<65) formationDirection=1;
 
     for (const a of aliens) {
         if (!a.alive) continue;
 
         if (!a.diving) {
-            a.x += formationDirection * speed * dt;
-            a.homeX = a.x;
+            a.x+=formationDirection*speed*dt;
+            a.homeX=a.x;
         } else {
-            a.diveTime += dt;
+            a.diveTime+=dt;
 
-            const t = Math.min(
-                1,
-                a.diveTime / a.diveDuration
-            );
+            const t=Math.min(1,a.diveTime/a.diveDuration);
+            const curve=Math.sin(t*Math.PI);
 
-            const curve = Math.sin(t * Math.PI);
+            a.x=a.diveStartX
+                +Math.sin(t*Math.PI*2)*155*curve
+                +(player.x-a.diveStartX)*0.18*curve;
 
-            a.x = a.diveStartX
-                + Math.sin(t * Math.PI * 2) * 155 * curve
-                + (player.x - a.diveStartX) * 0.18 * curve;
+            a.y=a.diveStartY+380*curve;
 
-            a.y = a.diveStartY + 380 * curve;
-
-            if (!a.diveShot && t > 0.35) {
-                fireEnemyBullet(a.x, a.y);
-                a.diveShot = true;
+            if (!a.diveShot&&t>0.35) {
+                fireEnemyBullet(a.x,a.y);
+                a.diveShot=true;
             }
 
-            if (t >= 1) {
-                a.diving = false;
-                a.x = a.homeX;
-                a.y = a.homeY;
-                a.diveShot = false;
+            if (t>=1) {
+                a.diving=false;
+                a.x=a.homeX;
+                a.y=a.homeY;
+                a.diveShot=false;
             }
         }
     }
 
-    diveTimer -= dt;
+    diveTimer-=dt;
 
-    if (diveTimer <= 0) {
+    if (diveTimer<=0) {
         startDive();
-        diveTimer = Math.max(0.8, 2.6 - level * 0.15);
+        diveTimer=Math.max(0.8,2.6-level*0.15);
     }
 
-    enemyTimer -= dt;
+    enemyTimer-=dt;
 
-    if (enemyTimer <= 0) {
-        const shooters = aliens.filter(a => a.alive);
+    if (enemyTimer<=0) {
+        const shooters=aliens.filter(a=>a.alive);
 
         if (shooters.length) {
-            const shooter = shooters[
-                Math.floor(Math.random() * shooters.length)
+            const shooter=shooters[
+                Math.floor(Math.random()*shooters.length)
             ];
 
-            fireEnemyBullet(shooter.x, shooter.y + 10);
+            fireEnemyBullet(shooter.x,shooter.y+10);
         }
 
-        enemyTimer = Math.max(
-            0.4,
-            1.8 - level * 0.12 + Math.random()
-        );
+        enemyTimer=Math.max(0.4,1.8-level*0.12+Math.random());
     }
 }
 
 function hitPlayer() {
-    if (player.invulnerable > 0) return;
+    if (player.invulnerable>0) return;
 
     lives--;
     updateStats();
 
-    makeExplosion(player.x, player.y, "#40eaff", 22);
-    explosionSound();
+    makeExplosion(player.x,player.y,"#40eaff",22);
+    tone(100,0.22,"sawtooth",0.06);
 
-    enemyBullets = [];
+    enemyBullets=[];
 
-    if (lives <= 0) {
+    if (lives<=0) {
         endGame();
     } else {
-        player.invulnerable = 2;
+        player.invulnerable=2;
     }
 }
 
@@ -761,111 +712,102 @@ function checkCollisions() {
         for (const a of aliens) {
             if (!a.alive) continue;
 
-            const dx = b.x - a.x;
-            const dy = b.y - a.y;
+            if (Math.abs(b.x-a.x)<20 &&
+                Math.abs(b.y-a.y)<20) {
 
-            if (Math.abs(dx) < 20 && Math.abs(dy) < 20) {
-                a.alive = false;
-                b.active = false;
+                a.alive=false;
+                b.active=false;
 
-                score += a.row === 0 ? 40 : 20;
-
+                score+=a.row===0?40:20;
                 updateStats();
 
-                makeExplosion(
-                    a.x,
-                    a.y,
-                    alienColours[a.type]
-                );
-
-                explosionSound();
+                makeExplosion(a.x,a.y,alienColours[a.type]);
+                tone(100,0.15,"sawtooth",0.04);
                 break;
             }
         }
     }
 
-    playerBullets = playerBullets.filter(
-        b => b.active && b.y > -20
+    playerBullets=playerBullets.filter(
+        b=>b.active&&b.y>-20
     );
 
     for (const b of enemyBullets) {
-        if (Math.abs(b.x - player.x) < 20 &&
-            Math.abs(b.y - player.y) < 23) {
+        if (!b.active) continue;
 
-            b.active = false;
+        if (Math.abs(b.x-player.x)<20 &&
+            Math.abs(b.y-player.y)<23) {
+
+            b.active=false;
             hitPlayer();
         }
     }
 
-    enemyBullets = enemyBullets.filter(
-        b => b.active && b.y < H + 20 &&
-        b.x > -20 && b.x < W + 20
+    enemyBullets=enemyBullets.filter(
+        b=>b.active&&b.y<H+20&&b.x>-20&&b.x<W+20
     );
 
-    // Direct collision with a diving alien.
     for (const a of aliens) {
-        if (!a.alive || !a.diving) continue;
+        if (!a.alive||!a.diving) continue;
 
-        if (Math.abs(a.x - player.x) < 25 &&
-            Math.abs(a.y - player.y) < 28) {
+        if (Math.abs(a.x-player.x)<25 &&
+            Math.abs(a.y-player.y)<28) {
 
-            a.alive = false;
-            makeExplosion(a.x, a.y, alienColours[a.type]);
+            a.alive=false;
+            makeExplosion(a.x,a.y,alienColours[a.type]);
             hitPlayer();
         }
     }
 
-    // Formation reaching the player is a separate game-over condition.
     for (const a of aliens) {
-        if (a.alive && !a.diving && a.y > player.y - 35) {
+        if (a.alive&&!a.diving&&a.y>player.y-35) {
             endGame();
             return;
         }
     }
 
-    if (aliens.length &&
-        aliens.every(a => !a.alive)) {
+    if (aliens.length&&aliens.every(a=>!a.alive)) {
         nextLevel();
     }
 }
 
 function update(dt) {
-    if (!running || paused) return;
+    if (!running||paused) return;
 
-    dt = Math.min(dt, 0.04);
+    dt=Math.min(dt,0.04);
 
-    if (keys.ArrowLeft || keys.a || keys.A) {
-        player.x -= player.speed * dt;
+    if (keys.ArrowLeft||keys.a||keys.A) {
+        player.x-=player.speed*dt;
     }
 
-    if (keys.ArrowRight || keys.d || keys.D) {
-        player.x += player.speed * dt;
+    if (keys.ArrowRight||keys.d||keys.D) {
+        player.x+=player.speed*dt;
     }
 
-    player.x = Math.max(28, Math.min(W - 28, player.x));
+    player.x=Math.max(28,Math.min(W-28,player.x));
 
     if (keys[" "]) {
-        fireTimer -= dt;
+        fireTimer-=dt;
 
-        if (fireTimer <= 0) {
+        if (fireTimer<=0) {
             firePlayerBullet();
-            fireTimer = 0.23;
+            fireTimer=0.23;
         }
     } else {
-        fireTimer = 0;
+        fireTimer=0;
     }
 
-    if (player.invulnerable > 0) {
-        player.invulnerable -= dt;
+    if (player.invulnerable>0) {
+        player.invulnerable-=dt;
     }
 
     for (const b of playerBullets) {
-        b.y -= b.speed * dt;
+        b.y-=b.speed*dt;
     }
 
     for (const b of enemyBullets) {
-        b.x += b.vx * dt;
-        b.y += b.vy * dt;
+        b.x+=b.vx*dt;
+        b.y+=b.vy*dt;
     }
 
     updateAliens(dt);
@@ -879,26 +821,23 @@ function draw(dt) {
     drawPlayer();
     drawParticles(dt);
 
-    if (paused && running) {
-        ctx.fillStyle = "rgba(0,0,0,.65)";
-        ctx.fillRect(0, 0, W, H);
+    if (paused&&running) {
+        ctx.fillStyle="rgba(0,0,0,.65)";
+        ctx.fillRect(0,0,W,H);
 
-        ctx.fillStyle = "#ffe45c";
-        ctx.font = "bold 42px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText("PAUSED", W / 2, H / 2);
+        ctx.fillStyle="#ffe45c";
+        ctx.font="bold 42px Arial";
+        ctx.textAlign="center";
+        ctx.fillText("PAUSED",W/2,H/2);
     }
 }
 
 function loop(timestamp) {
-    const dt = lastTime
-        ? (timestamp - lastTime) / 1000
-        : 0;
-
-    lastTime = timestamp;
+    const dt=lastTime?(timestamp-lastTime)/1000:0;
+    lastTime=timestamp;
 
     update(dt);
-    draw(Math.min(dt, 0.04));
+    draw(Math.min(dt,0.04));
 
     requestAnimationFrame(loop);
 }
@@ -906,99 +845,91 @@ function loop(timestamp) {
 function togglePause() {
     if (!running) return;
 
-    paused = !paused;
+    paused=!paused;
 
-    document.getElementById("pause").textContent =
-        paused ? "RESUME" : "PAUSE";
+    document.getElementById("pause").textContent=
+        paused?"RESUME":"PAUSE";
 }
 
-// Keyboard controls
-document.addEventListener("keydown", e => {
-    if ([
-        "ArrowLeft",
-        "ArrowRight",
-        " ",
-        "ArrowUp",
-        "ArrowDown"
-    ].includes(e.key)) {
+// Keyboard
+document.addEventListener("keydown",e=>{
+    if (["ArrowLeft","ArrowRight"," ","ArrowUp","ArrowDown"].includes(e.key)) {
         e.preventDefault();
     }
 
-    keys[e.key] = true;
+    keys[e.key]=true;
 
-    if (e.key === "Enter" && !running) {
-        newGame();
-    }
+    if (e.key==="Enter"&&!running) newGame();
 
-    if ((e.key === "p" || e.key === "P") && running) {
+    if ((e.key==="p"||e.key==="P")&&running) {
         togglePause();
     }
 });
 
-document.addEventListener("keyup", e => {
-    keys[e.key] = false;
+document.addEventListener("keyup",e=>{
+    keys[e.key]=false;
 });
 
-window.addEventListener("blur", () => {
-    keys.ArrowLeft = false;
-    keys.ArrowRight = false;
-    keys.a = false;
-    keys.d = false;
-    keys[" "] = false;
+window.addEventListener("blur",()=>{
+    keys.ArrowLeft=false;
+    keys.ArrowRight=false;
+    keys.a=false;
+    keys.d=false;
+    keys[" "]=false;
 });
 
-// Touch controls
-function bindHold(id, key) {
-    const button = document.getElementById(id);
+// Touch controls: pointer events work with touch, mouse and stylus.
+function bindHold(id,key) {
+    const button=document.getElementById(id);
 
-    button.addEventListener("pointerdown", e => {
+    button.addEventListener("pointerdown",e=>{
         e.preventDefault();
         initAudio();
 
-        if (!running && key === " ") {
+        if (!running&&key===" ") {
             newGame();
         }
 
-        if (key === " " && running) {
-            keys[key] = true;
-        } else if (running) {
-            keys[key] = true;
+        if (running) {
+            keys[key]=true;
         }
 
-        button.setPointerCapture(e.pointerId);
+        try {
+            button.setPointerCapture(e.pointerId);
+        } catch(err) {}
     });
 
-    const release = e => {
+    const release=e=>{
         e.preventDefault();
-        keys[key] = false;
+        keys[key]=false;
     };
 
-    button.addEventListener("pointerup", release);
-    button.addEventListener("pointercancel", release);
-    button.addEventListener("lostpointercapture", release);
+    button.addEventListener("pointerup",release);
+    button.addEventListener("pointercancel",release);
+    button.addEventListener("lostpointercapture",release);
 }
 
-bindHold("left", "ArrowLeft");
-bindHold("right", "ArrowRight");
-bindHold("fire", " ");
+bindHold("left","ArrowLeft");
+bindHold("right","ArrowRight");
+bindHold("fire"," ");
 
-// Buttons
-document.getElementById("pause").addEventListener("click", () => {
+// Other buttons
+document.getElementById("pause").addEventListener("click",()=>{
     togglePause();
 
-    document.getElementById("pause").textContent =
-        paused ? "RESUME" : "PAUSE";
+    document.getElementById("pause").textContent=
+        paused?"RESUME":"PAUSE";
 });
 
-document.getElementById("restart").addEventListener("click", () => {
+document.getElementById("restart").addEventListener("click",()=>{
     newGame();
 });
 
-document.getElementById("sound").addEventListener("click", () => {
-    soundOn = !soundOn;
+document.getElementById("sound").addEventListener("click",()=>{
+    soundOn=!soundOn;
 
-    document.getElementById("sound").textContent =
-        soundOn ? "SOUND: ON" : "SOUND: OFF";
+    document.getElementById("sound").textContent=
+        soundOn?"SOUND: ON":"SOUND: OFF";
 
     if (soundOn) initAudio();
 });
@@ -1011,6 +942,5 @@ updateStats();
 requestAnimationFrame(loop);
 
 </script>
-
 </body>
 </html>
