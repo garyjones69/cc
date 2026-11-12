@@ -2,97 +2,149 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Space Invaders HD</title>
 
 <style>
-* { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
 
-body {
+html, body {
     margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
     background: #020817;
     color: white;
     font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
+    overscroll-behavior: none;
 }
 
 .game {
-    width: min(100%, 900px);
-    padding: 10px;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    gap: 5px;
 }
 
 header {
+    flex-shrink: 0;
     display: flex;
     justify-content: space-around;
-    padding: 15px 5px;
+    align-items: center;
+    padding: 12px 2px;
     background: #07172b;
     border: 2px solid #087fbd;
     font-weight: bold;
-    font-size: 15px;
+    font-size: clamp(10px, 2.5vw, 16px);
 }
 
-header span { color: #42f5d7; }
+header span {
+    color: #42f5d7;
+}
+
+.gamearea {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
 
 canvas {
     display: block;
     width: 100%;
+    height: 100%;
+    object-fit: contain;
     background: #020817;
-    border-left: 2px solid #087fbd;
-    border-right: 2px solid #087fbd;
-    touch-action: none;
-}
-
-.controls {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    padding: 12px;
-    background: #07172b;
     border: 2px solid #087fbd;
 }
 
+.controls {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 4px max(8px, env(safe-area-inset-bottom));
+    background: #07172b;
+    border: 2px solid #087fbd;
+    border-radius: 8px;
+}
+
 button {
-    padding: 14px 22px;
+    flex: 1;
+    max-width: 140px;
+    min-height: 62px;
     background: #17365c;
     color: white;
     border: 2px solid #438dcc;
-    border-radius: 10px;
-    font-size: 20px;
+    border-radius: 12px;
+    font-size: clamp(20px, 4vw, 28px);
     font-weight: bold;
     touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+button:active {
+    background: #2877b8;
+    transform: scale(.96);
 }
 
 button.fire {
     background: #bd1828;
     border-color: #ff6574;
-    min-width: 110px;
 }
 
 .instructions {
+    flex-shrink: 0;
     text-align: center;
     color: #8daac5;
-    font-size: 12px;
-    padding: 10px;
+    font-size: 10px;
+    padding: 2px;
 }
 
-@media (min-width: 700px) {
-    .controls { display: none; }
+@media (orientation: landscape) {
+    .controls {
+        padding-top: 4px;
+        padding-bottom: 4px;
+    }
+
+    button {
+        min-height: 48px;
+    }
+
+    header {
+        padding: 6px;
+    }
 }
 </style>
 </head>
 
 <body>
+
 <div class="game">
 
 <header>
-    <div>SCORE: <span id="score">00000</span></div>
-    <div>BEST: <span id="best">00000</span></div>
-    <div>LIVES: <span id="lives">3</span></div>
-    <div>LEVEL: <span id="level">1</span></div>
+    <div>SCORE <span id="score">00000</span></div>
+    <div>BEST <span id="best">00000</span></div>
+    <div>LIVES <span id="lives">3</span></div>
+    <div>LEVEL <span id="level">1</span></div>
 </header>
 
-<canvas id="game" width="800" height="600"></canvas>
+<div class="gamearea">
+    <canvas id="game" width="800" height="600"></canvas>
+</div>
+
+<!-- CONTROLS FIXED AT BOTTOM -->
 
 <div class="controls">
     <button id="left">◀</button>
@@ -102,7 +154,7 @@ button.fire {
 </div>
 
 <div class="instructions">
-    Arrow keys / A and D to move · SPACE to fire · P to pause
+    HOLD LEFT / RIGHT TO MOVE · HOLD FIRE TO SHOOT
 </div>
 
 </div>
@@ -110,9 +162,9 @@ button.fire {
 <script>
 
 // =====================================================
-// HIGH RESOLUTION EMBEDDED SPRITESHEET
-// Each sprite is 256 x 192 pixels.
-// Two animation frames per alien.
+// EMBEDDED HIGH RESOLUTION SPRITESHEET
+// 1024 x 1152 SVG
+// 256 x 192 pixels per sprite cell
 // =====================================================
 
 const svg = `
@@ -122,237 +174,181 @@ const svg = `
 
 <defs>
 
-    <linearGradient id="green" x2="0" y2="1">
-        <stop stop-color="#c0ff9c"/>
-        <stop offset=".4" stop-color="#55ff65"/>
-        <stop offset="1" stop-color="#008b35"/>
-    </linearGradient>
+<linearGradient id="green" x2="0" y2="1">
+<stop stop-color="#c0ff9c"/>
+<stop offset=".4" stop-color="#55ff65"/>
+<stop offset="1" stop-color="#008b35"/>
+</linearGradient>
 
-    <linearGradient id="gold" x2="0" y2="1">
-        <stop stop-color="#fff2a0"/>
-        <stop offset=".5" stop-color="#ffbd35"/>
-        <stop offset="1" stop-color="#d56b00"/>
-    </linearGradient>
+<linearGradient id="gold" x2="0" y2="1">
+<stop stop-color="#fff2a0"/>
+<stop offset=".5" stop-color="#ffbd35"/>
+<stop offset="1" stop-color="#d56b00"/>
+</linearGradient>
 
-    <linearGradient id="pink" x2="0" y2="1">
-        <stop stop-color="#ffb6ff"/>
-        <stop offset=".5" stop-color="#f23dff"/>
-        <stop offset="1" stop-color="#8a00c4"/>
-    </linearGradient>
+<linearGradient id="pink" x2="0" y2="1">
+<stop stop-color="#ffb6ff"/>
+<stop offset=".5" stop-color="#f23dff"/>
+<stop offset="1" stop-color="#8a00c4"/>
+</linearGradient>
 
-    <linearGradient id="cyan" x2="0" y2="1">
-        <stop stop-color="#c4ffff"/>
-        <stop offset=".5" stop-color="#20dcff"/>
-        <stop offset="1" stop-color="#0073bb"/>
-    </linearGradient>
+<linearGradient id="cyan" x2="0" y2="1">
+<stop stop-color="#c4ffff"/>
+<stop offset=".5" stop-color="#20dcff"/>
+<stop offset="1" stop-color="#0073bb"/>
+</linearGradient>
 
-    <linearGradient id="ship" x2="0" y2="1">
-        <stop stop-color="#ffffff"/>
-        <stop offset=".5" stop-color="#9bcaff"/>
-        <stop offset="1" stop-color="#2454a0"/>
-    </linearGradient>
+<linearGradient id="ship" x2="0" y2="1">
+<stop stop-color="#ffffff"/>
+<stop offset=".5" stop-color="#9bcaff"/>
+<stop offset="1" stop-color="#2454a0"/>
+</linearGradient>
 
-    <filter id="glow">
-        <feGaussianBlur stdDeviation="5" result="blur"/>
-        <feMerge>
-            <feMergeNode in="blur"/>
-            <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-    </filter>
+<filter id="glow">
+<feGaussianBlur stdDeviation="5" result="blur"/>
+<feMerge>
+<feMergeNode in="blur"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+</filter>
 
 </defs>
 
-<!-- ALIEN TYPE 1: GREEN -->
+<!-- GREEN ALIEN -->
 
-<g id="alien1" fill="url(#green)" stroke="#087b36" stroke-width="5">
+<g fill="url(#green)" stroke="#087b36" stroke-width="5">
 
-    <g transform="translate(0,0)">
-        <path d="M55 65 L85 65 L85 40 L110 40 L110 20
-        L145 20 L145 40 L170 40 L170 65 L200 65
-        L200 110 L175 110 L175 135 L150 135
-        L150 160 L130 160 L130 135 L105 135
-        L105 160 L85 160 L85 135 L60 135 L60 110
-        L55 110 Z"/>
-        <rect x="92" y="75" width="22" height="25" fill="#03172a"/>
-        <rect x="145" y="75" width="22" height="25" fill="#03172a"/>
-        <path d="M100 118 L156 118" fill="none" stroke="#03172a" stroke-width="9"/>
-    </g>
-
-    <g transform="translate(256,0)">
-        <path d="M55 65 L85 65 L85 40 L110 40 L110 20
-        L145 20 L145 40 L170 40 L170 65 L200 65
-        L200 110 L175 110 L175 135 L150 135
-        L150 160 L130 160 L130 135 L105 135
-        L105 160 L85 160 L85 135 L60 135 L60 110
-        L55 110 Z"/>
-        <rect x="92" y="75" width="22" height="25" fill="#03172a"/>
-        <rect x="145" y="75" width="22" height="25" fill="#03172a"/>
-        <path d="M100 118 L156 118" fill="none" stroke="#03172a" stroke-width="9"/>
-        <path d="M70 145 L90 145 M165 145 L185 145" stroke="#d5ffad" stroke-width="8"/>
-    </g>
+<g transform="translate(0,0)">
+<path d="M55 65 L85 65 L85 40 L110 40 L110 20 L145 20 L145 40 L170 40 L170 65 L200 65 L200 110 L175 110 L175 135 L150 135 L150 160 L130 160 L130 135 L105 135 L105 160 L85 160 L85 135 L60 135 L60 110 L55 110 Z"/>
+<rect x="92" y="75" width="22" height="25" fill="#03172a"/>
+<rect x="145" y="75" width="22" height="25" fill="#03172a"/>
+<path d="M100 118 L156 118" fill="none" stroke="#03172a" stroke-width="9"/>
 </g>
 
-<!-- ALIEN TYPE 2: GOLD -->
+<g transform="translate(256,0)">
+<path d="M55 65 L85 65 L85 40 L110 40 L110 20 L145 20 L145 40 L170 40 L170 65 L200 65 L200 110 L175 110 L175 135 L150 135 L150 160 L130 160 L130 135 L105 135 L105 160 L85 160 L85 135 L60 135 L60 110 L55 110 Z"/>
+<rect x="92" y="75" width="22" height="25" fill="#03172a"/>
+<rect x="145" y="75" width="22" height="25" fill="#03172a"/>
+<path d="M100 118 L156 118" fill="none" stroke="#03172a" stroke-width="9"/>
+<path d="M70 145 L90 145 M165 145 L185 145" stroke="#d5ffad" stroke-width="8"/>
+</g>
+
+</g>
+
+<!-- GOLD ALIEN -->
 
 <g fill="url(#gold)" stroke="#a64e00" stroke-width="5">
 
-    <g transform="translate(0,192)">
-        <path d="M50 70 L75 70 L75 40 L100 40 L100 20
-        L125 40 L150 20 L175 40 L200 40 L200 70
-        L225 70 L225 115 L195 115 L195 145
-        L165 145 L165 170 L140 170 L140 145
-        L115 145 L115 170 L90 170 L90 145
-        L65 145 L65 115 L50 115 Z"/>
-        <rect x="90" y="85" width="25" height="25" fill="#241000"/>
-        <rect x="160" y="85" width="25" height="25" fill="#241000"/>
-        <path d="M105 125 L170 125" stroke="#241000" stroke-width="9"/>
-    </g>
-
-    <g transform="translate(256,192)">
-        <path d="M50 70 L75 70 L75 40 L100 40 L100 20
-        L125 40 L150 20 L175 40 L200 40 L200 70
-        L225 70 L225 115 L195 115 L195 145
-        L165 145 L165 170 L140 170 L140 145
-        L115 145 L115 170 L90 170 L90 145
-        L65 145 L65 115 L50 115 Z"/>
-        <rect x="90" y="85" width="25" height="25" fill="#241000"/>
-        <rect x="160" y="85" width="25" height="25" fill="#241000"/>
-        <path d="M105 125 L170 125" stroke="#241000" stroke-width="9"/>
-        <path d="M65 150 L85 150 M175 150 L195 150" stroke="#fff2a0" stroke-width="8"/>
-    </g>
+<g transform="translate(0,192)">
+<path d="M50 70 L75 70 L75 40 L100 40 L100 20 L125 40 L150 20 L175 40 L200 40 L200 70 L225 70 L225 115 L195 115 L195 145 L165 145 L165 170 L140 170 L140 145 L115 145 L115 170 L90 170 L90 145 L65 145 L65 115 L50 115 Z"/>
+<rect x="90" y="85" width="25" height="25" fill="#241000"/>
+<rect x="160" y="85" width="25" height="25" fill="#241000"/>
+<path d="M105 125 L170 125" stroke="#241000" stroke-width="9"/>
 </g>
 
-<!-- ALIEN TYPE 3: PINK -->
+<g transform="translate(256,192)">
+<path d="M50 70 L75 70 L75 40 L100 40 L100 20 L125 40 L150 20 L175 40 L200 40 L200 70 L225 70 L225 115 L195 115 L195 145 L165 145 L165 170 L140 170 L140 145 L115 145 L115 170 L90 170 L90 145 L65 145 L65 115 L50 115 Z"/>
+<rect x="90" y="85" width="25" height="25" fill="#241000"/>
+<rect x="160" y="85" width="25" height="25" fill="#241000"/>
+<path d="M105 125 L170 125" stroke="#241000" stroke-width="9"/>
+<path d="M65 150 L85 150 M175 150 L195 150" stroke="#fff2a0" stroke-width="8"/>
+</g>
+
+</g>
+
+<!-- PINK ALIEN -->
 
 <g fill="url(#pink)" stroke="#79008f" stroke-width="5">
 
-    <g transform="translate(0,384)">
-        <path d="M35 75 L65 75 L65 50 L90 50 L90 25
-        L115 25 L115 50 L140 50 L140 25 L165 25
-        L165 50 L190 50 L190 75 L220 75 L220 120
-        L195 120 L195 145 L170 145 L170 170
-        L145 170 L145 145 L110 145 L110 170
-        L85 170 L85 145 L60 145 L60 120 L35 120 Z"/>
-        <rect x="80" y="85" width="28" height="28" fill="#280033"/>
-        <rect x="150" y="85" width="28" height="28" fill="#280033"/>
-        <path d="M100 125 L155 125" stroke="#280033" stroke-width="10"/>
-    </g>
-
-    <g transform="translate(256,384)">
-        <path d="M35 75 L65 75 L65 50 L90 50 L90 25
-        L115 25 L115 50 L140 50 L140 25 L165 25
-        L165 50 L190 50 L190 75 L220 75 L220 120
-        L195 120 L195 145 L170 145 L170 170
-        L145 170 L145 145 L110 145 L110 170
-        L85 170 L85 145 L60 145 L60 120 L35 120 Z"/>
-        <rect x="80" y="85" width="28" height="28" fill="#280033"/>
-        <rect x="150" y="85" width="28" height="28" fill="#280033"/>
-        <path d="M100 125 L155 125" stroke="#280033" stroke-width="10"/>
-        <path d="M60 155 L80 155 M180 155 L200 155" stroke="#ffcaff" stroke-width="8"/>
-    </g>
+<g transform="translate(0,384)">
+<path d="M35 75 L65 75 L65 50 L90 50 L90 25 L115 25 L115 50 L140 50 L140 25 L165 25 L165 50 L190 50 L190 75 L220 75 L220 120 L195 120 L195 145 L170 145 L170 170 L145 170 L145 145 L110 145 L110 170 L85 170 L85 145 L60 145 L60 120 L35 120 Z"/>
+<rect x="80" y="85" width="28" height="28" fill="#280033"/>
+<rect x="150" y="85" width="28" height="28" fill="#280033"/>
+<path d="M100 125 L155 125" stroke="#280033" stroke-width="10"/>
 </g>
 
-<!-- ALIEN TYPE 4: CYAN -->
+<g transform="translate(256,384)">
+<path d="M35 75 L65 75 L65 50 L90 50 L90 25 L115 25 L115 50 L140 50 L140 25 L165 25 L165 50 L190 50 L190 75 L220 75 L220 120 L195 120 L195 145 L170 145 L170 170 L145 170 L145 145 L110 145 L110 170 L85 170 L85 145 L60 145 L60 120 L35 120 Z"/>
+<rect x="80" y="85" width="28" height="28" fill="#280033"/>
+<rect x="150" y="85" width="28" height="28" fill="#280033"/>
+<path d="M100 125 L155 125" stroke="#280033" stroke-width="10"/>
+<path d="M60 155 L80 155 M180 155 L200 155" stroke="#ffcaff" stroke-width="8"/>
+</g>
+
+</g>
+
+<!-- CYAN ALIEN -->
 
 <g fill="url(#cyan)" stroke="#00517c" stroke-width="5">
 
-    <g transform="translate(0,576)">
-        <path d="M50 80 L80 80 L80 45 L105 45 L105 20
-        L130 45 L155 20 L155 45 L180 45 L180 80
-        L210 80 L210 120 L185 120 L185 145
-        L160 145 L160 170 L135 170 L135 145
-        L110 145 L110 170 L85 170 L85 145
-        L60 145 L60 120 L50 120 Z"/>
-        <rect x="90" y="85" width="25" height="30" fill="#001d38"/>
-        <rect x="155" y="85" width="25" height="30" fill="#001d38"/>
-        <path d="M100 125 L165 125" stroke="#001d38" stroke-width="10"/>
-    </g>
-
-    <g transform="translate(256,576)">
-        <path d="M50 80 L80 80 L80 45 L105 45 L105 20
-        L130 45 L155 20 L155 45 L180 45 L180 80
-        L210 80 L210 120 L185 120 L185 145
-        L160 145 L160 170 L135 170 L135 145
-        L110 145 L110 170 L85 170 L85 145
-        L60 145 L60 120 L50 120 Z"/>
-        <rect x="90" y="85" width="25" height="30" fill="#001d38"/>
-        <rect x="155" y="85" width="25" height="30" fill="#001d38"/>
-        <path d="M100 125 L165 125" stroke="#001d38" stroke-width="10"/>
-        <path d="M60 155 L80 155 M185 155 L205 155" stroke="#c4ffff" stroke-width="8"/>
-    </g>
+<g transform="translate(0,576)">
+<path d="M50 80 L80 80 L80 45 L105 45 L105 20 L130 45 L155 20 L155 45 L180 45 L180 80 L210 80 L210 120 L185 120 L185 145 L160 145 L160 170 L135 170 L135 145 L110 145 L110 170 L85 170 L85 145 L60 145 L60 120 L50 120 Z"/>
+<rect x="90" y="85" width="25" height="30" fill="#001d38"/>
+<rect x="155" y="85" width="25" height="30" fill="#001d38"/>
+<path d="M100 125 L165 125" stroke="#001d38" stroke-width="10"/>
 </g>
 
-<!-- PLAYER SHIP -->
+<g transform="translate(256,576)">
+<path d="M50 80 L80 80 L80 45 L105 45 L105 20 L130 45 L155 20 L155 45 L180 45 L180 80 L210 80 L210 120 L185 120 L185 145 L160 145 L160 170 L135 170 L135 145 L110 145 L110 170 L85 170 L85 145 L60 145 L60 120 L50 120 Z"/>
+<rect x="90" y="85" width="25" height="30" fill="#001d38"/>
+<rect x="155" y="85" width="25" height="30" fill="#001d38"/>
+<path d="M100 125 L165 125" stroke="#001d38" stroke-width="10"/>
+<path d="M60 155 L80 155 M185 155 L205 155" stroke="#c4ffff" stroke-width="8"/>
+</g>
+
+</g>
+
+<!-- SPACESHIP -->
 
 <g transform="translate(0,768)">
 
-    <g>
-        <path d="M128 10 L155 75 L195 115 L220 170
-        L180 155 L160 185 L128 160 L96 185
-        L76 155 L36 170 L61 115 L101 75 Z"
-        fill="url(#ship)" stroke="#294f9a" stroke-width="7"/>
+<path d="M128 10 L155 75 L195 115 L220 170 L180 155 L160 185 L128 160 L96 185 L76 155 L36 170 L61 115 L101 75 Z"
+fill="url(#ship)" stroke="#294f9a" stroke-width="7"/>
 
-        <path d="M128 10 L128 150" stroke="#ffffff" stroke-width="12"/>
+<path d="M128 10 L128 150" stroke="#ffffff" stroke-width="12"/>
+<path d="M105 100 L151 100 L151 130 L105 130 Z" fill="#00dfff" filter="url(#glow)"/>
+<path d="M65 135 L95 145 L85 165 L55 155 Z" fill="#ff354d"/>
+<path d="M190 135 L160 145 L170 165 L200 155 Z" fill="#ff354d"/>
 
-        <path d="M105 100 L151 100 L151 130 L105 130 Z"
-        fill="#00dfff" filter="url(#glow)"/>
-
-        <path d="M65 135 L95 145 L85 165 L55 155 Z" fill="#ff354d"/>
-        <path d="M190 135 L160 145 L170 165 L200 155 Z" fill="#ff354d"/>
-    </g>
-
-    <g transform="translate(256,0)">
-        <path d="M128 10 L155 75 L195 115 L220 170
-        L180 155 L160 185 L128 160 L96 185
-        L76 155 L36 170 L61 115 L101 75 Z"
-        fill="url(#ship)" stroke="#294f9a" stroke-width="7"/>
-
-        <path d="M128 10 L128 150" stroke="#ffffff" stroke-width="12"/>
-
-        <path d="M105 100 L151 100 L151 130 L105 130 Z"
-        fill="#00dfff" filter="url(#glow)"/>
-
-        <path d="M65 135 L95 145 L85 165 L55 155 Z" fill="#ff354d"/>
-        <path d="M190 135 L160 145 L170 165 L200 155 Z" fill="#ff354d"/>
-    </g>
+<g transform="translate(256,0)">
+<path d="M128 10 L155 75 L195 115 L220 170 L180 155 L160 185 L128 160 L96 185 L76 155 L36 170 L61 115 L101 75 Z"
+fill="url(#ship)" stroke="#294f9a" stroke-width="7"/>
+<path d="M128 10 L128 150" stroke="#ffffff" stroke-width="12"/>
+<path d="M105 100 L151 100 L151 130 L105 130 Z" fill="#00dfff" filter="url(#glow)"/>
+<path d="M65 135 L95 145 L85 165 L55 155 Z" fill="#ff354d"/>
+<path d="M190 135 L160 145 L170 165 L200 155 Z" fill="#ff354d"/>
 </g>
 
-<!-- EXPLOSIONS: FOUR FRAMES -->
+</g>
+
+<!-- EXPLOSIONS -->
 
 <g transform="translate(0,960)" filter="url(#glow)">
 
-    <g fill="#fff5a0">
-        <circle cx="128" cy="96" r="25"/>
-        <circle cx="128" cy="25" r="10"/>
-        <circle cx="128" cy="167" r="10"/>
-        <circle cx="57" cy="96" r="10"/>
-        <circle cx="199" cy="96" r="10"/>
-    </g>
+<g fill="#fff5a0">
+<circle cx="128" cy="96" r="25"/>
+<circle cx="128" cy="25" r="10"/>
+<circle cx="128" cy="167" r="10"/>
+<circle cx="57" cy="96" r="10"/>
+<circle cx="199" cy="96" r="10"/>
+</g>
 
-    <g transform="translate(256,0)">
-        <circle cx="128" cy="96" r="45" fill="#ffb52e"/>
-        <path d="M128 5 L145 60 L195 25 L170 85
-        L250 96 L170 110 L210 170 L145 130
-        L128 190 L110 130 L45 170 L85 110
-        L5 96 L85 85 L45 25 L110 60 Z"
-        fill="#ff6a20"/>
-        <circle cx="128" cy="96" r="25" fill="#fff8a0"/>
-    </g>
+<g transform="translate(256,0)">
+<circle cx="128" cy="96" r="45" fill="#ffb52e"/>
+<path d="M128 5 L145 60 L195 25 L170 85 L250 96 L170 110 L210 170 L145 130 L128 190 L110 130 L45 170 L85 110 L5 96 L85 85 L45 25 L110 60 Z" fill="#ff6a20"/>
+<circle cx="128" cy="96" r="25" fill="#fff8a0"/>
+</g>
 
-    <g transform="translate(512,0)">
-        <circle cx="128" cy="96" r="65" fill="#ff651f"/>
-        <circle cx="128" cy="96" r="40" fill="#ffe34b"/>
-        <circle cx="128" cy="96" r="20" fill="#ffffff"/>
-    </g>
+<g transform="translate(512,0)">
+<circle cx="128" cy="96" r="65" fill="#ff651f"/>
+<circle cx="128" cy="96" r="40" fill="#ffe34b"/>
+<circle cx="128" cy="96" r="20" fill="#ffffff"/>
+</g>
 
-    <g transform="translate(768,0)">
-        <path d="M128 0 L140 65 L220 20 L165 90
-        L256 110 L160 120 L220 180 L140 140
-        L128 192 L110 140 L35 180 L90 120
-        L0 110 L90 90 L35 20 L110 65 Z"
-        fill="#ff522d"/>
-        <circle cx="128" cy="96" r="18" fill="#ffeaa0"/>
-    </g>
+<g transform="translate(768,0)">
+<path d="M128 0 L140 65 L220 20 L165 90 L256 110 L160 120 L220 180 L140 140 L128 192 L110 140 L35 180 L90 120 L0 110 L90 90 L35 20 L110 65 Z" fill="#ff522d"/>
+<circle cx="128" cy="96" r="18" fill="#ffeaa0"/>
+</g>
 
 </g>
 
@@ -376,10 +372,12 @@ const ctx = canvas.getContext("2d");
 const WIDTH = 800;
 const HEIGHT = 600;
 
-let score, lives, level, best;
+let score, lives, level;
+let best = Number(localStorage.getItem("invadersBest") || 0);
+
 let player, aliens, shots, bombs, explosions;
 let keys = {};
-let running = false;
+
 let paused = false;
 let gameOver = false;
 let lastTime = 0;
@@ -387,7 +385,10 @@ let elapsed = 0;
 let alienDirection = 1;
 let alienTimer = 0;
 
-best = Number(localStorage.getItem("invadersBest") || 0);
+
+// =====================================================
+// GAME SETUP
+// =====================================================
 
 function newGame() {
 
@@ -409,7 +410,6 @@ function newGame() {
 
     paused = false;
     gameOver = false;
-    running = true;
 
     createAliens();
     updateHUD();
@@ -449,7 +449,7 @@ function updateHUD() {
 
 
 // =====================================================
-// DRAW SPRITES FROM THE SHEET
+// SPRITE DRAWING
 // =====================================================
 
 function drawSprite(sx, sy, sw, sh, x, y, w, h) {
@@ -467,11 +467,9 @@ function drawAlien(a) {
 
     const frame = Math.floor(elapsed / 250) % 2;
 
-    const sx = frame * 256;
-    const sy = a.type * 192;
-
     drawSprite(
-        sx, sy,
+        frame * 256,
+        a.type * 192,
         256, 192,
         a.x - 28, a.y - 21,
         56, 42
@@ -495,8 +493,7 @@ function drawExplosion(e) {
     const frame = Math.min(3, Math.floor(e.age / 90));
 
     drawSprite(
-        frame * 256,
-        960,
+        frame * 256, 960,
         256, 192,
         e.x - 35, e.y - 35,
         70, 70
@@ -505,7 +502,7 @@ function drawExplosion(e) {
 
 
 // =====================================================
-// GAME ACTIONS
+// ACTIONS
 // =====================================================
 
 function fire() {
@@ -519,22 +516,17 @@ function fire() {
             y: player.y - 30
         });
 
-        player.cooldown = 300;
+        player.cooldown = 230;
     }
 }
 
 function createExplosion(x, y) {
-
-    explosions.push({
-        x, y,
-        age: 0
-    });
+    explosions.push({ x, y, age: 0 });
 }
 
 function finishGame() {
 
     gameOver = true;
-    running = false;
 
     if (score > best) {
         best = score;
@@ -546,7 +538,7 @@ function finishGame() {
 
 
 // =====================================================
-// UPDATE
+// UPDATE GAME
 // =====================================================
 
 function update(dt) {
@@ -556,28 +548,28 @@ function update(dt) {
     elapsed += dt;
 
     player.cooldown -= dt;
+
     player.invulnerable =
         Math.max(0, player.invulnerable - dt);
 
     // Player movement
 
-    if (keys.ArrowLeft || keys.a || keys.A) {
+    if (keys.ArrowLeft || keys.a || keys.A)
         player.x -= player.speed;
-    }
 
-    if (keys.ArrowRight || keys.d || keys.D) {
+    if (keys.ArrowRight || keys.d || keys.D)
         player.x += player.speed;
-    }
 
     player.x = Math.max(35, Math.min(765, player.x));
 
-    // Firing
+    // Continuous firing
 
     if (keys[" "]) fire();
 
-    // Player shots
+    // Player missiles
 
     shots.forEach(s => s.y -= 9);
+
     shots = shots.filter(s => s.y > 0);
 
     // Alien movement
@@ -587,21 +579,24 @@ function update(dt) {
     const speed = 0.6 + (36 - alive.length) * 0.025;
 
     aliens.forEach(a => {
-        if (a.alive) {
+
+        if (a.alive)
             a.x += alienDirection * speed;
-        }
     });
 
-    const left = Math.min(...alive.map(a => a.x));
-    const right = Math.max(...alive.map(a => a.x));
+    if (alive.length) {
 
-    if (right > 770 || left < 30) {
+        const left = Math.min(...alive.map(a => a.x));
+        const right = Math.max(...alive.map(a => a.x));
 
-        alienDirection *= -1;
+        if (right > 770 || left < 30) {
 
-        aliens.forEach(a => {
-            if (a.alive) a.y += 18;
-        });
+            alienDirection *= -1;
+
+            aliens.forEach(a => {
+                if (a.alive) a.y += 18;
+            });
+        }
     }
 
     // Alien bombs
@@ -622,9 +617,10 @@ function update(dt) {
     }
 
     bombs.forEach(b => b.y += 4);
+
     bombs = bombs.filter(b => b.y < HEIGHT);
 
-    // Shot collision
+    // Collision detection
 
     shots.forEach(s => {
 
@@ -647,7 +643,7 @@ function update(dt) {
         });
     });
 
-    // Player collision
+    // Player hit by bombs
 
     bombs.forEach(b => {
 
@@ -665,11 +661,12 @@ function update(dt) {
 
             createExplosion(player.x, player.y);
 
-            if (lives <= 0) finishGame();
+            if (lives <= 0)
+                finishGame();
         }
     });
 
-    // Explosion animation
+    // Explosions
 
     explosions.forEach(e => e.age += dt);
 
@@ -687,16 +684,15 @@ function update(dt) {
 
     // Aliens reach player
 
-    if (aliens.some(a => a.alive && a.y > player.y - 40)) {
+    if (aliens.some(a => a.alive && a.y > player.y - 40))
         finishGame();
-    }
 
     updateHUD();
 }
 
 
 // =====================================================
-// RENDER
+// DRAW GAME
 // =====================================================
 
 function draw() {
@@ -710,14 +706,16 @@ function draw() {
         const x = (i * 137) % WIDTH;
         const y = (i * 83) % HEIGHT;
 
-        ctx.fillStyle = i % 5 === 0 ? "#ffffff" : "#254b75";
+        ctx.fillStyle =
+            i % 5 === 0 ? "#ffffff" : "#254b75";
 
         ctx.fillRect(x, y, 2, 2);
     }
 
     // Planetary horizon
 
-    const gradient = ctx.createLinearGradient(0, 470, 0, 600);
+    const gradient =
+        ctx.createLinearGradient(0, 470, 0, 600);
 
     gradient.addColorStop(0, "rgba(0,70,180,0)");
     gradient.addColorStop(1, "rgba(0,120,255,.3)");
@@ -751,7 +749,7 @@ function draw() {
         ctx.fillRect(b.x - 3, b.y, 6, 15);
     });
 
-    // Player
+    // Player ship
 
     if (
         !player.invulnerable ||
@@ -764,7 +762,7 @@ function draw() {
 
     explosions.forEach(drawExplosion);
 
-    // Overlay
+    // Pause / game over
 
     if (paused || gameOver) {
 
@@ -783,7 +781,9 @@ function draw() {
         ctx.font = "22px Arial";
 
         ctx.fillText(
-            gameOver ? "Press ENTER to restart" : "Press P to resume",
+            gameOver ?
+                "Press FIRE to restart" :
+                "Press PAUSE to resume",
             400, 320
         );
     }
@@ -791,7 +791,7 @@ function draw() {
 
 
 // =====================================================
-// MAIN LOOP
+// MAIN GAME LOOP
 // =====================================================
 
 function loop(time) {
@@ -808,7 +808,7 @@ function loop(time) {
 
 
 // =====================================================
-// KEYBOARD
+// KEYBOARD CONTROLS
 // =====================================================
 
 window.addEventListener("keydown", e => {
@@ -821,13 +821,11 @@ window.addEventListener("keydown", e => {
         e.preventDefault();
     }
 
-    if (e.key.toLowerCase() === "p" && !gameOver) {
+    if (e.key.toLowerCase() === "p" && !gameOver)
         paused = !paused;
-    }
 
-    if (e.key === "Enter" && gameOver) {
+    if (e.key === "Enter" && gameOver)
         newGame();
-    }
 });
 
 window.addEventListener("keyup", e => {
@@ -836,7 +834,7 @@ window.addEventListener("keyup", e => {
 
 
 // =====================================================
-// MOBILE CONTROLS
+// TOUCH CONTROLS
 // =====================================================
 
 function holdButton(id, key) {
@@ -844,12 +842,19 @@ function holdButton(id, key) {
     const button = document.getElementById(id);
 
     button.addEventListener("pointerdown", e => {
+
         e.preventDefault();
+
+        if (gameOver)
+            newGame();
+
         keys[key] = true;
+
         button.setPointerCapture(e.pointerId);
     });
 
     ["pointerup", "pointercancel", "lostpointercapture"].forEach(event => {
+
         button.addEventListener(event, () => {
             keys[key] = false;
         });
@@ -859,26 +864,47 @@ function holdButton(id, key) {
 holdButton("left", "ArrowLeft");
 holdButton("right", "ArrowRight");
 
-document.getElementById("fire").addEventListener(
-    "pointerdown",
-    e => {
-        e.preventDefault();
-        fire();
-    }
-);
+const fireButton = document.getElementById("fire");
 
-document.getElementById("pause").onclick = () => {
-    if (!gameOver) paused = !paused;
-};
+fireButton.addEventListener("pointerdown", e => {
+
+    e.preventDefault();
+
+    if (gameOver) {
+        newGame();
+        return;
+    }
+
+    keys[" "] = true;
+
+    fire();
+
+    fireButton.setPointerCapture(e.pointerId);
+});
+
+["pointerup", "pointercancel", "lostpointercapture"].forEach(event => {
+
+    fireButton.addEventListener(event, () => {
+        keys[" "] = false;
+    });
+});
+
+document.getElementById("pause").addEventListener("click", () => {
+
+    if (!gameOver)
+        paused = !paused;
+});
 
 
 // =====================================================
-// START
+// START GAME
 // =====================================================
 
 newGame();
+
 requestAnimationFrame(loop);
 
 </script>
+
 </body>
 </html>
